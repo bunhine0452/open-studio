@@ -135,8 +135,7 @@ class Page:
             ts = at(sc["strike"].get("at"), 1.0, 0)
             size = sc["strike"].get("size", 220)
             b.append(f'<div class="strike" style="font-size:{size}px;--d:{g(0.2):.3f}s;--ds:{ts:.3f}s">'
-                     f'{html.escape(sc["strike"]["text"])}<svg viewBox="0 0 100 40" preserveAspectRatio="none">'
-                     f'<path pathLength="1" d="M0 28 C 30 24, 60 18, 100 12"/></svg></div>')
+                     f'{html.escape(sc["strike"]["text"])}<i class="bar"></i></div>')
             after = []
             if sc.get("tag"):
                 after.append(f'<span class="tag" style="font-size:44px;--d:{at(sc["tag"].get("at"), ts + 0.25, 0) + 0.25:.3f}s">'
@@ -206,7 +205,7 @@ class Page:
         src = ""
         if sc.get("source") and kind != "end":
             src = f'<div class="source" style="--d:{g(0.3):.3f}s"><span>{html.escape(sc["source"])}</span></div>'
-        return f'<div class="body {kind}">{"".join(b)}</div>{src}'
+        return f'<div class="body k-{kind}">{"".join(b)}</div>{src}'
 
     def video(self, path: Path):
         """카드용 프레임 그림(540 폭, 30fps). 브라우저 속 영상 탐색은 헤드리스에서 믿을 수 없어 그림으로 푼다."""

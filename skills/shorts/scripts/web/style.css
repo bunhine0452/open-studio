@@ -82,8 +82,8 @@ body { font-family: "P", system-ui, sans-serif; color: var(--ink); -webkit-font-
 
 .strike { position: relative; display: inline-block; margin-top: 70px; font-weight: 900; letter-spacing: -.05em; line-height: 1; animation: fade .5s var(--out) both, dim .4s var(--out) forwards; animation-delay: var(--d), calc(var(--ds) + .25s); }
 @keyframes dim { to { color: var(--mute); } }
-.strike svg { position: absolute; left: -3%; top: 8%; width: 106%; height: 84%; overflow: visible; }
-.strike path { fill: none; stroke: var(--accent); stroke-width: 18px; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-dasharray: 1; animation: stroke .35s var(--io) both; animation-delay: var(--ds); }
+.strike .bar { position: absolute; left: -3%; right: -3%; top: 50%; height: 18px; border-radius: 9px; background: var(--accent); transform-origin: left center; animation: strike-draw .35s var(--io) both; animation-delay: var(--ds); }
+@keyframes strike-draw { from { transform: rotate(-3deg) scaleX(0); } to { transform: rotate(-3deg) scaleX(1); } }
 .after { margin-top: 56px; }
 
 .rank { margin-top: 40px; }
@@ -115,10 +115,10 @@ body { font-family: "P", system-ui, sans-serif; color: var(--ink); -webkit-font-
 @keyframes dot { from { transform: scale(0); } to { transform: none; } }
 @keyframes fade-out { to { opacity: 0; } }
 
-.end .todo-k { font-weight: 700; font-size: 34px; color: var(--accent); margin: 36px 0 12px; }
-.end .cta { font-weight: 500; font-size: 40px; color: var(--body); margin-top: 40px; }
-.end .link { display: inline-block; position: relative; font-weight: 900; font-size: 48px; margin-top: 10px; }
-.end .link::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 5px; background: var(--accent); transform-origin: left; animation: draw .7s var(--io) both; animation-delay: calc(var(--d) + .3s); }
+.k-end .todo-k { font-weight: 700; font-size: 34px; color: var(--accent); margin: 36px 0 12px; }
+.k-end .cta { font-weight: 500; font-size: 40px; color: var(--body); margin-top: 40px; }
+.k-end .link { display: inline-block; position: relative; font-weight: 900; font-size: 48px; margin-top: 10px; }
+.k-end .link::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 5px; background: var(--accent); transform-origin: left; animation: draw .7s var(--io) both; animation-delay: calc(var(--d) + .3s); }
 
 .source { position: absolute; left: var(--m); right: var(--m); top: 1560px; padding-top: 18px; font-weight: 500; font-size: 26px; color: var(--mute); }
 .source::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--rule); transform-origin: left; animation: draw .8s var(--io) both; animation-delay: var(--d); }

@@ -8,7 +8,7 @@
 |---|---|---|---|
 | **쇼츠** | "쇼츠 만들어 줘: 주제" | 1080×1920 mp4, 자막, 효과음, 업로드 문구 | 쇼츠 자동화 스킬 99,000원~ |
 | **카드뉴스** | "카드뉴스 만들어 줘: 주제/링크" | 인스타 PNG(4:5·1:1·9:16), PDF, 릴스 mp4, 캡션·해시태그 | AI 카드뉴스 도구 구독, 대행 |
-| 상세페이지 | (만드는 중) | | 크몽 60,000원~, SaaS 월 29,000원~ |
+| **상세페이지** | "상세페이지 만들어 줘" + 사진 | 860·780·1080 긴 이미지와 조각, 대표 이미지, 누끼, HTML 원본, 과장 광고 점검 | 크몽 60,000원~, SaaS 월 29,000~149,000원 |
 | 쇼핑 쇼츠 | (만드는 중) | | 쇼핑 쇼츠 프로그램 350,000원, 1편 8,000원 |
 | 블로그 글 도우미 | (만드는 중) | | 블로그 자동 포스팅 99,000~1,290,000원 |
 
@@ -119,6 +119,32 @@ uv run $C/cards.py examples/cardnews-howto --size 4:5,1:1,9:16 --reels # PNG·PD
 uv run $C/cards.py examples/cardnews-howto --preview --theme neon      # 같은 세트를 다른 테마로
 ```
 장 종류와 cards.json 형식: [`skills/cardnews/references/layouts.md`](skills/cardnews/references/layouts.md).
+
+---
+
+# 상세페이지
+
+![상세페이지 예시: 가상의 보온 물병 (사진은 AI 예시 이미지)](docs/detailpage.jpg)
+
+> `examples/detail-bottle` 렌더(860 폭 한 장을 네 줄로 잘라 붙임). 가상의 상품이고 사진은 AI 로 만든 예시예요.
+
+```
+"상세페이지 만들어 줘" + 상품 정보·사진 폴더
+  → 설득 흐름: 히어로 → 공감 → 해결 → 포인트(지시선·숫자 카드) → 장면 → 비교표 → 사양 → 사용법 → 후기(실제만) → 질문 → 안내 → 마무리
+  → 브랜드 색 하나로 전체 색 자동 (글자 대비 4.5:1 보정) · 스타일 5가지 clean·warm·bold·dark·soft
+  → 누끼(배경 제거, 오픈소스 rembg, 내 컴퓨터에서)
+  → 스마트스토어 860 · 쿠팡 780 · 토스 1080 폭 한 장 + 섹션 경계 조각(JPG·WEBP) + 대표 이미지(흰 배경·브랜드 무대) + 편집용 HTML
+  → 과장 광고 문구 점검 (최상급·100%·의약품 오인·인증·다이어트·출처 없는 후기)
+```
+
+```bash
+D=skills/detailpage/scripts
+uv run $D/detail.py examples/detail-bottle --check            # 문구 점검
+uv run $D/detail.py examples/detail-bottle --preview          # 860 미리보기
+uv run $D/detail.py examples/detail-bottle                    # 세 폭 + 조각 + 대표 이미지 (8초)
+uv run $D/detail.py examples/detail-bottle --preview --style dark
+```
+섹션 종류와 문구 규칙: [`skills/detailpage/references/sections.md`](skills/detailpage/references/sections.md).
 
 ---
 

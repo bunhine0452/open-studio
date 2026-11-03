@@ -1,6 +1,6 @@
 # open-shorts
 
-**쇼츠 자동화, 돈 주고 배우지 마세요.** 주제 한 줄을 말하면 Claude Code 가 자료를 찾고, 대본을 쓰고, 목소리·자막·효과음을 넣어 세로 쇼츠 mp4 를 만듭니다. 전부 오픈소스(MIT)이고, 기본 목소리도 무료라 결제할 게 없습니다.
+**쇼츠 자동화, 돈 주고 배우지 마세요.** 주제 한 줄을 말하면 Claude Code 가 자료를 찾고, 대본을 쓰고, 목소리·자막·효과음을 넣어 세로 쇼츠 mp4 를 만듭니다. 전부 오픈소스(MIT)이고 기본 목소리도 무료라, 스킬에 드는 돈은 없습니다. (Claude Code 를 쓰려면 Claude 유료 요금제나 API 결제는 필요합니다.)
 
 ![테마 6가지: 지면 · 네온 · 아케이드 · 차분 · 뉴스 · 사용자 테마](docs/themes.jpg)
 
@@ -68,6 +68,8 @@ uv run $S/render.py examples/git-paper --still --preview --theme arcade   # 같�
 | ElevenLabs (선택) | 유료 | `ELEVENLABS_API_KEY` 환경 변수 + `--engine elevenlabs --voice <id>` |
 
 두 엔진 모두 글자·낱말 시각을 함께 받아 자막을 맞추므로 받아쓰기 모델이 필요 없습니다.
+
+edge-tts 는 Microsoft Edge 의 소리 내어 읽기 서비스를 쓰는 오픈소스 라이브러리입니다. 공식 API 가 아니라서 바뀌거나 막힐 수 있고, 그때는 다른 엔진을 `voice.py` 에 더하면 됩니다. 만든 음성을 영상에 쓸 때는 설명란에 "AI 음성"을 밝혀 주세요.
 
 ## 확인한 환경
 

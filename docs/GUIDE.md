@@ -66,14 +66,14 @@ irm https://claude.ai/install.ps1 | iex
 
 ---
 
-## 4. 쇼츠 스킬 설치
+## 4. 스킬 설치 (쇼츠·카드뉴스 한 번에)
 
 `claude` 를 실행한 화면(입력창)에 아래 두 줄을 **한 줄씩** 입력합니다.
 ```
-/plugin marketplace add bunhine0452/open-shorts
+/plugin marketplace add bunhine0452/open-studio
 ```
 ```
-/plugin install open-shorts@open-shorts
+/plugin install open-studio@open-studio
 ```
 설치가 끝나면 `/exit` 로 나왔다가 `claude` 로 다시 들어갑니다.
 
@@ -82,9 +82,9 @@ irm https://claude.ai/install.ps1 | iex
 
 터미널에서:
 ```bash
-git clone https://github.com/bunhine0452/open-shorts
+git clone https://github.com/bunhine0452/open-studio
 mkdir -p ~/.claude/skills
-cp -r open-shorts/skills/shorts ~/.claude/skills/shorts
+cp -r open-studio/skills/* ~/.claude/skills/
 ```
 </details>
 
@@ -129,6 +129,16 @@ mkdir -p ~/my-shorts && cd ~/my-shorts && claude
 맥은 `open shorts` 로 폴더를 열 수 있습니다. 같은 폴더에 유튜브 제목·설명란(caption.txt)도 있습니다.
 
 ---
+
+### 카드뉴스도 같은 방식이에요
+```
+카드뉴스 만들어 줘: 장마 오기 전에 집에서 챙길 것
+```
+```
+이 링크를 카드뉴스로 만들어 줘: https://…
+```
+결과는 `~/my-shorts/cardnews/001-…/out/` 에 생겨요. `4x5` 폴더의 PNG 를 순서대로 인스타에 올리고, `caption.txt` 를 캡션에 붙여 넣으면 돼요. `reels.mp4` 는 같은 내용을 릴스로 올릴 때 써요.
+처음 한 번 "내 브랜드는 ○○, 핸들은 @○○, 로고는 이 파일"이라고 말해 두면 다음부터 모든 카드에 들어가요.
 
 ## 7. 마음에 안 들면 말로 고치기
 
@@ -181,4 +191,4 @@ Chrome 확장(Claude in Chrome)을 쓰고 있다면 "유튜브에 비공개로 �
 - **Claude Code**: Claude 유료 요금제 또는 API 사용료
 - **선택**: 더 자연스러운 목소리를 원하면 ElevenLabs(유료) 키를 넣어 쓸 수 있습니다
 
-쇼츠 자동화를 따로 돈 주고 배울 필요는 없습니다. 막히는 곳은 [깃허브 이슈](https://github.com/bunhine0452/open-shorts/issues)에 남겨 주세요.
+쇼츠 자동화를 따로 돈 주고 배울 필요는 없습니다. 막히는 곳은 [깃허브 이슈](https://github.com/bunhine0452/open-studio/issues)에 남겨 주세요.

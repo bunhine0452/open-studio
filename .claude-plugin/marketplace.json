@@ -1,14 +1,14 @@
 {
-  "name": "open-shorts",
+  "name": "open-studio",
   "owner": {
     "name": "bunhine0452"
   },
   "plugins": [
     {
-      "name": "open-shorts",
+      "name": "open-studio",
       "source": "./",
-      "description": "주제 한 줄로 세로 쇼츠를 만드는 Claude Code 스킬 (무료 음성 · 테마 5종 + 사용자 테마 · 코드로 합성한 효과음)"
+      "description": "돈 주고 사는 AI 콘텐츠 자동화를 오픈소스로 — 쇼츠·카드뉴스(·상세페이지·쇼핑 쇼츠·블로그) Claude Code 스킬"
     }
   ],
-  "description": "주제 한 줄로 세로 쇼츠를 만드는 오픈소스 Claude Code 스킬"
+  "description": "돈 주고 사는 AI 콘텐츠 자동화를 오픈소스로 만든 Claude Code 스킬 모음"
 }

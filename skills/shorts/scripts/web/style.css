@@ -1,4 +1,4 @@
-/* open-shorts 모션 스타일. 모든 애니메이션은 멈춘 채로 runtime.js 의 __seek(t) 가 시각을 맞춘다.
+/* open-studio 쇼츠 모션 스타일. 모든 애니메이션은 멈춘 채로 runtime.js 의 __seek(t) 가 시각을 맞춘다.
    요소의 시작 시각은 인라인 --d(초), 장면은 --t0/--t1. 테마는 body.theme-* 와 :root 색 변수로 갈린다. */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }

@@ -1,0 +1,10 @@
+__pycache__/
+.DS_Store
+*.mp4
+*.wav
+examples/*/audio/
+examples/*/storyboard.jpg
+examples/*/_contact.jpg
+examples/*/_frames.jpg
+examples/*/captions.srt
+/shorts/

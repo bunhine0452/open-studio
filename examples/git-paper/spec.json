@@ -1,0 +1,59 @@
+{
+  "theme": "paper",
+  "brand": "DEV NOTES",
+  "label": "코딩 팁",
+  "highlights": [
+    "늦지",
+    "그대로"
+  ],
+  "scenes": [
+    {
+      "type": "cover",
+      "tag": "git",
+      "headline": "reset --hard로\n[날린 커밋 살리기]",
+      "big": {
+        "value": 30,
+        "unit": "일까지",
+        "at": "깃"
+      }
+    },
+    {
+      "type": "code",
+      "from": "깃",
+      "kicker": "git reflog",
+      "headline": "HEAD가 거쳐 간\n[자리가 다 남아요]",
+      "lines": [
+        {
+          "code": "$ git reflog",
+          "at": "리플로그를"
+        },
+        {
+          "code": "2dc3667 HEAD@{0}: reset",
+          "at": "헤드가"
+        },
+        {
+          "code": "53c9e32 HEAD@{1}: commit",
+          "at": "자리가"
+        },
+        {
+          "code": "$ git reset --hard HEAD@{1}",
+          "hot": true,
+          "at": "번호로"
+        }
+      ],
+      "label": "직접 실행 · git 2.53",
+      "source": "출처 · git 문서 git-reflog"
+    },
+    {
+      "type": "end",
+      "from": "오늘",
+      "todo": "git reflog\n[한 번 쳐 보기]"
+    }
+  ],
+  "caption_map": {
+    "리셋 하드": "reset --hard",
+    "리플로그": "reflog",
+    "헤드": "HEAD",
+    "깃": "git"
+  }
+}

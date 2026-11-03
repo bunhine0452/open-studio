@@ -1,0 +1,54 @@
+{
+  "theme": "arcade",
+  "brand": "PIXEL QUIZ",
+  "label": "게임 상식",
+  "highlights": [
+    "소련이에요",
+    "글자로"
+  ],
+  "scenes": [
+    {
+      "type": "cover",
+      "tag": "게임 퀴즈",
+      "headline": "테트리스의 고향은\n[어느 나라?]",
+      "big": {
+        "value": 1984,
+        "unit": "년",
+        "at": "테트리스는"
+      }
+    },
+    {
+      "type": "table",
+      "from": "정답은",
+      "kicker": "정답",
+      "headline": "[소련]에서\n태어났어요",
+      "rows": [
+        {
+          "left": "만든 해",
+          "right": "1984년",
+          "at": "천구백팔십사"
+        },
+        {
+          "left": "만든 곳",
+          "right": "모스크바",
+          "at": "모스크바"
+        },
+        {
+          "left": "만든 사람",
+          "right": "파지트노프",
+          "at": "알렉세이",
+          "alert": true
+        }
+      ],
+      "source": "출처 · The Tetris Company 연혁"
+    },
+    {
+      "type": "end",
+      "from": "친구한테",
+      "todo": "친구한테\n[문제 내기]"
+    }
+  ],
+  "caption_map": {
+    "천구백팔십사 년": "1984년"
+  }
+}

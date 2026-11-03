@@ -1,0 +1,58 @@
+{
+  "theme": "news",
+  "brand": "WEATHER NOW",
+  "label": "생활 안전",
+  "highlights": [
+    "세",
+    "막지"
+  ],
+  "caption_map": {
+    "엑스 자": "X자"
+  },
+  "scenes": [
+    {
+      "type": "cover",
+      "tag": "장마 대비",
+      "headline": "장마 오기 전\n[세 가지만]",
+      "big": {
+        "value": 3,
+        "unit": "가지",
+        "at": "세"
+      }
+    },
+    {
+      "type": "checks",
+      "from": "베란다",
+      "kicker": "체크리스트",
+      "headline": "테이프 X자는\n[효과 없어요]",
+      "rows": [
+        {
+          "text": "배수구 낙엽 치우기",
+          "ok": true,
+          "at": "베란다"
+        },
+        {
+          "text": "창문을 창틀에 고정",
+          "ok": true,
+          "at": "창문은"
+        },
+        {
+          "text": "유리에 테이프 X자",
+          "ok": false,
+          "at": "유리에"
+        },
+        {
+          "text": "비상 연락처 붙이기",
+          "ok": true,
+          "at": "비상"
+        }
+      ],
+      "source": "참고 · 행정안전부 풍수해 국민행동요령"
+    },
+    {
+      "type": "end",
+      "from": "오늘",
+      "todo": "배수구\n[한 번 열어 보기]"
+    }
+  ]
+}

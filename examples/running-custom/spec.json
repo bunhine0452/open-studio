@@ -1,0 +1,70 @@
+{
+  "theme": {
+    "base": "calm",
+    "sfx": "arcade",
+    "colors": {
+      "bg": "#14302a",
+      "ink": "#f4efe1",
+      "body": "#cfd9cd",
+      "mute": "#8da69b",
+      "rule": "#2d4b44",
+      "panel": "#1c3a33",
+      "accent": "#f2b544",
+      "accent2": "#ef7d57",
+      "ok": "#9ad17e",
+      "on_accent": "#14302a"
+    }
+  },
+  "brand": "RUN CLUB",
+  "label": "내 브랜드 색",
+  "highlights": [
+    "뛰고",
+    "너무"
+  ],
+  "scenes": [
+    {
+      "type": "cover",
+      "tag": "처음 달리기",
+      "headline": "1분 뛰고\n[2분 걷기]",
+      "big": {
+        "value": 24,
+        "unit": "분",
+        "at": "뛰고"
+      }
+    },
+    {
+      "type": "steps",
+      "from": "이걸",
+      "kicker": "첫 주 계획",
+      "headline": "[이 정도]면\n충분해요",
+      "steps": [
+        {
+          "text": "1분 뛰기 + 2분 걷기",
+          "at": "이걸"
+        },
+        {
+          "text": "8번 반복 = 24분",
+          "at": "이십사"
+        },
+        {
+          "text": "말 못 할 만큼은 너무 빨라요",
+          "at": "숨이"
+        },
+        {
+          "text": "일주일에 세 번",
+          "at": "일주일에"
+        }
+      ]
+    },
+    {
+      "type": "end",
+      "from": "오늘",
+      "todo": "신발 끈만\n[묶어 보기]"
+    }
+  ],
+  "caption_map": {
+    "일 분": "1분",
+    "이 분": "2분",
+    "이십사 분": "24분"
+  }
+}

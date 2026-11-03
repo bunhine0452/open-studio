@@ -1,0 +1,54 @@
+{
+  "theme": "neon",
+  "brand": "SECURITY DAILY",
+  "label": "보안 1분",
+  "highlights": [
+    "십",
+    "전부"
+  ],
+  "caption_map": {
+    "십 초": "10초",
+    "해브 아이 빈 폰드": "Have I Been Pwned"
+  },
+  "scenes": [
+    {
+      "type": "cover",
+      "tag": "보안",
+      "headline": "비밀번호 털렸는지\n[10초]면 확인",
+      "big": {
+        "value": 10,
+        "unit": "초",
+        "at": "십"
+      }
+    },
+    {
+      "type": "checks",
+      "from": "해브",
+      "kicker": "지금 할 일",
+      "headline": "이메일 넣고\n[나온 곳부터]",
+      "rows": [
+        {
+          "text": "이메일 넣어 보기",
+          "ok": true,
+          "at": "이메일을"
+        },
+        {
+          "text": "나온 곳 비밀번호 바꾸기",
+          "ok": true,
+          "at": "나온"
+        },
+        {
+          "text": "같은 비밀번호 돌려쓰기",
+          "ok": false,
+          "at": "같은"
+        }
+      ],
+      "source": "출처 · haveibeenpwned.com"
+    },
+    {
+      "type": "end",
+      "from": "오늘",
+      "todo": "이메일 하나\n[넣어 보기]"
+    }
+  ]
+}

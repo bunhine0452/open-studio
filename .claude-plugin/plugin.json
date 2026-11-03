@@ -1,0 +1,9 @@
+{
+  "name": "claude-shorts",
+  "version": "0.1.0",
+  "description": "주제 한 줄로 세로 쇼츠를 만드는 Claude Code 스킬 — 조사·대본·한국어 읽기 변환·무료 음성·테마별 화면과 효과음·렌더까지",
+  "author": {"name": "bunhine0452"},
+  "license": "MIT",
+  "repository": "https://github.com/bunhine0452/claude-shorts",
+  "keywords": ["shorts", "youtube", "video", "korean", "tts"]
+}

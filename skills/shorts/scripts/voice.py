@@ -1,0 +1,146 @@
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["edge-tts>=7", "requests"]
+# ///
+"""내레이션 음성 + 낱말 시각. 기본은 무료(키 없음) edge-tts.
+
+uv run voice.py <편 폴더> [--engine edge|elevenlabs] [--voice ko-KR-SunHiNeural] [--rate +12%]
+  읽는 것: <편 폴더>/narration.txt (speakable.py 를 거친, 소리 나는 대로 쓴 대본)
+  만드는 것: audio/narration.mp3, audio/narration.words.json  ({"words": [{"w": " 낱말,", "s": 0.1, "e": 0.4}]})
+
+엔진
+  edge        무료, 키 없음, 인터넷 필요. 한국어 목소리: ko-KR-SunHiNeural(여) · ko-KR-InJoonNeural(남)
+              · ko-KR-HyunsuMultilingualNeural(남). 말 빠르기 --rate (+0% ~ +25%, 쇼츠는 +10% 안팎)
+  elevenlabs  유료 선택지. 환경 변수 ELEVENLABS_API_KEY, --voice <voice_id>, --model eleven_v3
+낱말 시각은 엔진이 주는 경계(글자·낱말 시각)를 대본 글자에 맞춰 붙인다 — 받아쓰기(Whisper)가 필요 없다.
+"""
+from __future__ import annotations
+
+import argparse
+import asyncio
+import base64
+import difflib
+import json
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+_PUNCT = re.compile(r"[\s.,!?·…'\"“”‘’()\[\]{}:;~\-—]+")
+
+
+def char_times_to_words(script: str, chars: list[tuple[str, float, float]]) -> list[dict]:
+    """엔진이 준 (글자, 시작, 끝) 목록을 대본의 띄어쓰기 낱말(문장부호 포함)에 맞춘다.
+    엔진이 숫자·문장부호를 다르게 쪼개도 글자 정렬(difflib)로 맞추고, 못 맞춘 글자는 앞뒤로 보간한다."""
+    tokens = script.split()
+    sc = [(ti, ch) for ti, tok in enumerate(tokens) for ch in _PUNCT.sub("", tok)]
+    eng = [(c, s, e) for c, s, e in chars if _PUNCT.sub("", c)]
+    a, b = "".join(ch for _, ch in sc), "".join(c for c, _, _ in eng)
+    times: list[tuple[float, float] | None] = [None] * len(sc)
+    for blk in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks():
+        for k in range(blk.size):
+            times[blk.a + k] = eng[blk.b + k][1:]
+    known = [k for k, v in enumerate(times) if v]
+    if not known:
+        raise SystemExit("엔진 시각을 대본에 하나도 맞추지 못했어요")
+    for k in range(len(times)):  # 빈 칸 보간
+        if times[k] is None:
+            lo = max((j for j in known if j < k), default=None)
+            hi = min((j for j in known if j > k), default=None)
+            if lo is None:
+                times[k] = (times[hi][0], times[hi][0])
+            elif hi is None:
+                times[k] = (times[lo][1], times[lo][1])
+            else:
+                f = (k - lo) / (hi - lo)
+                t = times[lo][1] + (times[hi][0] - times[lo][1]) * f
+                times[k] = (t, t)
+    out = []
+    for ti, tok in enumerate(tokens):
+        ks = [k for k, (t, _) in enumerate(sc) if t == ti]
+        if not ks:  # 문장부호만 있는 토큰은 앞 낱말에 붙인다
+            if out:
+                out[-1]["w"] += tok
+            continue
+        out.append({"w": " " + tok, "s": round(times[ks[0]][0], 3), "e": round(times[ks[-1]][1], 3)})
+    return out
+
+
+def boundaries_to_chars(bounds):
+    """낱말 경계 [(글, 시작, 길이)] → 글자마다 시각을 고르게 나눈다."""
+    chars = []
+    for text, s, d in bounds:
+        clean = _PUNCT.sub("", text)
+        for k, ch in enumerate(clean):
+            chars.append((ch, s + d * k / len(clean), s + d * (k + 1) / len(clean)))
+    return chars
+
+
+async def _edge(script, voice, rate, out_mp3):
+    import edge_tts
+    comm = edge_tts.Communicate(script, voice, rate=rate, boundary="WordBoundary")
+    bounds = []
+    with open(out_mp3, "wb") as f:
+        async for ch in comm.stream():
+            if ch["type"] == "audio":
+                f.write(ch["data"])
+            elif ch["type"] == "WordBoundary":
+                bounds.append((ch["text"], ch["offset"] / 1e7, ch["duration"] / 1e7))
+    return boundaries_to_chars(bounds)
+
+
+def edge(script, out_mp3, voice="ko-KR-SunHiNeural", rate="+12%"):
+    return asyncio.run(_edge(script, voice, rate, out_mp3))
+
+
+def elevenlabs(script, out_mp3, voice, model="eleven_v3", speed=None):
+    import requests
+    key = os.environ.get("ELEVENLABS_API_KEY")
+    if not key:
+        raise SystemExit("ELEVENLABS_API_KEY 환경 변수가 없어요 (무료로 하려면 --engine edge)")
+    body = {"text": script, "model_id": model, "language_code": "ko",
+            "voice_settings": {"stability": 0.5, "similarity_boost": 0.8} | ({"speed": speed} if speed else {})}
+    r = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voice}/with-timestamps", headers={"xi-api-key": key},
+                      params={"output_format": "mp3_44100_192"}, json=body, timeout=600)
+    if r.status_code != 200:
+        raise SystemExit(f"ElevenLabs HTTP {r.status_code}: {r.text[:300]}")
+    d = r.json()
+    Path(out_mp3).write_bytes(base64.b64decode(d["audio_base64"]))
+    al = d.get("alignment") or d["normalized_alignment"]
+    return list(zip(al["characters"], al["character_start_times_seconds"], al["character_end_times_seconds"]))
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("folder")
+    ap.add_argument("--engine", default="edge", choices=["edge", "elevenlabs"])
+    ap.add_argument("--voice", default=None)
+    ap.add_argument("--rate", default="+12%", help="edge 말 빠르기")
+    ap.add_argument("--model", default="eleven_v3")
+    ap.add_argument("--speed", type=float, default=None, help="elevenlabs 말 빠르기 0.7~1.2")
+    a = ap.parse_args(argv)
+    folder = Path(a.folder).resolve()
+    script = re.sub(r"\s+", " ", (folder / "narration.txt").read_text()).strip()
+    if re.search(r"[A-Za-z0-9]", script):
+        print("주의: 대본에 영어·숫자가 남아 있어요 — speakable.py 로 읽는 소리로 바꾸면 엔진마다 읽는 법이 흔들리지 않아요",
+              file=sys.stderr)
+    (folder / "audio").mkdir(exist_ok=True)
+    mp3 = folder / "audio" / "narration.mp3"
+    if a.engine == "edge":
+        chars = edge(script, mp3, a.voice or "ko-KR-SunHiNeural", a.rate)
+    else:
+        if not a.voice:
+            raise SystemExit("--voice <ElevenLabs voice_id> 가 필요해요")
+        chars = elevenlabs(script, mp3, a.voice, a.model, a.speed)
+    words = char_times_to_words(script, chars)
+    (folder / "audio" / "narration.words.json").write_text(
+        json.dumps({"words": words, "engine": a.engine, "voice": a.voice}, ensure_ascii=False, indent=1))
+    dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+                                         str(mp3)]).decode())
+    print(json.dumps({"audio": str(mp3), "seconds": round(dur, 1), "words": len(words), "engine": a.engine},
+                     ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

@@ -31,10 +31,31 @@ def esc_rich(text: str, md: float | None = None) -> str:
     return "".join(out)
 
 
+def kinetic_line(ln: str, t0: float) -> str:
+    """키네틱 테마: 글자 하나하나가 차례로 쾅 하고 들어온다. [강조] 글자는 노란 상자."""
+    out, k, inside = [], 0, False
+    for ch in ln:
+        if ch == "[":
+            inside = True
+            continue
+        if ch == "]":
+            inside = False
+            continue
+        if ch == " ":
+            out.append(" ")
+            continue
+        out.append(f'<span class="ch{" e" if inside else ""}" style="--d:{t0 + 0.035 * k:.3f}s">{html.escape(ch)}</span>')
+        k += 1
+    return "".join(out)
+
+
 def head(text, t, size=None, cls="head"):
     lines = text.split("\n")
     longest = max(len(re.sub(r"[\[\]]", "", x)) for x in lines)
     size = size or (96 if longest <= 9 and len(lines) <= 2 else 80 if longest <= 13 else 70)
+    if themes.NAME == "kinetic":
+        spans = "".join(f'<span class="ln"><span class="kl">{kinetic_line(ln, t + 0.18 * k)}</span></span>' for k, ln in enumerate(lines))
+        return f'<div class="{cls}" style="font-size:{size}px;--md:{t + 0.5:.3f}s">{spans}</div>'
     spans = "".join(f'<span class="ln"><span style="--d:{t + 0.09 * k:.3f}s">{esc_rich(ln)}</span></span>'
                     for k, ln in enumerate(lines))
     return f'<div class="{cls}" style="font-size:{size}px;--md:{t + 0.5:.3f}s">{spans}</div>'
@@ -277,6 +298,9 @@ def build_html(folder: Path, spec: dict, scene_ctxs: list, bounds: list, caps, t
 
     fonts = "".join(f'@font-face{{font-family:"P";font-weight:{w};src:url("{_file(engine.FONT_FILES[k])}")}}'
                     for k, w in (("heavy", 900), ("extrabold", 800), ("bold", 700), ("medium", 500)))
+    serif = Path(engine.FONT_FILES["heavy"]).parent / "Hahmlet-Variable.ttf"  # 럭셔리·에디토리얼 제목용 세리프
+    if serif.exists():
+        fonts += f'@font-face{{font-family:"S";font-weight:100 900;src:url("{_file(serif)}")}}'
     pal = {"bg": "bg", "ink": "ink", "body": "body", "mute": "mute", "rule": "rule", "panel": "panel",
            "accent": "accent", "accent2": "accent2", "ok": "ok", "on-accent": "on_accent"}
     css_vars = ";".join(f"--{k}:{_rgb(P[v])}" for k, v in pal.items())
@@ -292,6 +316,14 @@ def build_html(folder: Path, spec: dict, scene_ctxs: list, bounds: list, caps, t
                   '<div class="blob" style="left:-300px;top:1100px;width:900px;height:700px;background:var(--accent2);opacity:.14;--dx:200px;--dy:-60px"></div>'
                   '<div class="grain"></div>',
           "paper": '<div class="grain"></div>',
+          "luxe": '<div class="vig"></div><div class="frame-line"></div><div class="grain"></div>',
+          "glass": '<div class="blob" style="left:-260px;top:-200px;width:900px;height:900px;background:#7a5cff;opacity:.75;--dx:260px;--dy:420px"></div>'
+                   '<div class="blob" style="right:-320px;top:500px;width:900px;height:900px;background:#ff5fb4;opacity:.6;--dx:-240px;--dy:-260px"></div>'
+                   '<div class="blob" style="left:80px;top:1250px;width:800px;height:700px;background:#22c3ff;opacity:.55;--dx:200px;--dy:-380px"></div>'
+                   '<div class="grain"></div>',
+          "kinetic": f'<div class="marq m1"><span>{html.escape((spec.get("brand", "") + "   ") * 8)}</span></div>'
+                     f'<div class="marq m2"><span>{html.escape((spec.get("label", "") or spec.get("brand", "")) + "   ") * 8}</span></div>',
+          "editorial": f'<div class="grain"></div><div class="issue">No.{int(spec.get("no", 1)):02d}</div><div class="cols-bg"><i></i><i></i></div>',
           }.get(name, "")
     top = '<div class="band"></div>' if name == "news" else ""  # 장면 위·머리글 아래에 깔리는 띠
     ticker = ""

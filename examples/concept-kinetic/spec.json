@@ -1,0 +1,63 @@
+{
+  "theme": "kinetic",
+  "brand": "HOOK LAB",
+  "label": "SHORTS TIP",
+  "footer": "AI 음성",
+  "bgm": {
+    "style": "tech"
+  },
+  "highlights": [
+    "삼",
+    "빼세요"
+  ],
+  "scenes": [
+    {
+      "type": "cover",
+      "headline": "첫 [3초]에\n갈려요",
+      "big": {
+        "value": 3,
+        "unit": "초",
+        "at": "삼"
+      }
+    },
+    {
+      "type": "steps",
+      "from": "첫 문장에",
+      "kicker": "공식",
+      "headline": "[세 가지]만",
+      "steps": [
+        {
+          "text": "첫 문장에 숫자",
+          "at": "첫"
+        },
+        {
+          "text": "질문으로 끝내기",
+          "at": "질문으로"
+        },
+        {
+          "text": "글자 하나만 크게",
+          "at": "화면엔"
+        }
+      ]
+    },
+    {
+      "type": "strike",
+      "from": "안녕하세요",
+      "kicker": "빼세요",
+      "headline": "인사는\n[필요 없어요]",
+      "strike": {
+        "text": "안녕하세요",
+        "at": "인사는",
+        "size": 170
+      }
+    },
+    {
+      "type": "end",
+      "from": "지금",
+      "todo": "첫 문장\n[바꿔 보기]"
+    }
+  ],
+  "caption_map": {
+    "삼 초": "3초"
+  }
+}

@@ -35,6 +35,15 @@ PALETTES = {
                  accent=(196, 98, 58), accent2=(98, 128, 88), panel=(239, 231, 216), ok=(98, 128, 88), on_accent=(247, 242, 232)),
     "news": dict(bg=(244, 245, 248), ink=(14, 26, 52), body=(56, 66, 90), mute=(110, 118, 138), rule=(212, 216, 226),
                  accent=(222, 34, 44), accent2=(16, 42, 92), panel=(232, 235, 242), ok=(22, 130, 80), on_accent=(255, 255, 255)),
+    # 아래 넷은 모션 엔진 전용 컨셉 (PIL --simple 엔진에서는 기본 배경으로 그린다)
+    "luxe": dict(bg=(11, 11, 12), ink=(242, 236, 224), body=(196, 188, 172), mute=(140, 132, 118), rule=(58, 52, 44),
+                 accent=(201, 169, 110), accent2=(120, 96, 60), panel=(22, 21, 20), ok=(176, 196, 140), on_accent=(11, 11, 12)),
+    "glass": dict(bg=(16, 10, 40), ink=(255, 255, 255), body=(226, 224, 250), mute=(176, 172, 220), rule=(98, 88, 160),
+                  accent=(255, 150, 214), accent2=(120, 150, 255), panel=(44, 34, 96), ok=(120, 255, 200), on_accent=(16, 10, 40)),
+    "kinetic": dict(bg=(16, 16, 16), ink=(255, 255, 255), body=(222, 222, 222), mute=(150, 150, 150), rule=(62, 62, 62),
+                    accent=(255, 229, 0), accent2=(255, 84, 20), panel=(30, 30, 30), ok=(255, 229, 0), on_accent=(16, 16, 16)),
+    "editorial": dict(bg=(244, 239, 230), ink=(26, 24, 22), body=(72, 66, 60), mute=(132, 124, 114), rule=(212, 202, 188),
+                      accent=(30, 66, 190), accent2=(26, 24, 22), panel=(236, 229, 217), ok=(40, 120, 80), on_accent=(244, 239, 230)),
 }
 P: dict = dict(PALETTES["paper"])
 NAME = "paper"
@@ -160,6 +169,35 @@ def hero(w: int, h: int, name: str = "") -> Image.Image:
             pts = [(x, h * (0.55 + 0.12 * k) + math.sin(x / w * math.pi * (1.4 + k * 0.5) + k) * h * 0.08)
                    for x in range(0, w + 20, 20)]
             d.polygon(pts + [(w, h), (0, h)], fill=col + (255,))
+    elif name == "luxe":  # 검정 판 + 금빛 동심원 호
+        d.rectangle([0, 0, w, h], fill=(14, 13, 12, 255))
+        for k in range(1, 14):
+            r = h * 0.12 * k
+            d.arc([w * 0.72 - r, h * 1.05 - r, w * 0.72 + r, h * 1.05 + r], 180, 360, fill=P["accent"] + (int(40 + 120 / k),), width=2)
+        d.line([(0, h * 0.82), (w, h * 0.82)], fill=P["accent"] + (120,), width=1)
+    elif name == "glass":  # 색이 번지는 그라데이션 + 유리판
+        g = Image.new("RGBA", (w, h), (24, 14, 60, 255))
+        gd = ImageDraw.Draw(g)
+        for cx, cy, r, col in ((.2, .3, .55, (122, 92, 255)), (.8, .4, .5, (255, 95, 180)), (.5, 1.0, .6, (34, 195, 255))):
+            gd.ellipse([w * cx - h * r, h * cy - h * r, w * cx + h * r, h * cy + h * r], fill=col + (255,))
+        im.alpha_composite(g.filter(ImageFilter.GaussianBlur(90)))
+        pane = Image.new("RGBA", (w, h), (0, 0, 0, 0))  # 반투명 유리판은 따로 그려 겹친다(바로 그리면 알파가 덮어써진다)
+        pd = ImageDraw.Draw(pane)
+        pd.rounded_rectangle([w * .12, h * .22, w * .62, h * .78], 36, fill=(255, 255, 255, 34), outline=(255, 255, 255, 120), width=2)
+        pd.rounded_rectangle([w * .46, h * .36, w * .88, h * .9], 36, fill=(255, 255, 255, 26), outline=(255, 255, 255, 90), width=2)
+        for k in range(3):
+            pd.rounded_rectangle([w * .17, h * (.34 + k * .12), w * (.5 - k * .08), h * (.34 + k * .12) + 14], 7, fill=(255, 255, 255, 120 - k * 30))
+        im.alpha_composite(pane)
+    elif name == "kinetic":  # 사선 노란 띠
+        d.rectangle([0, 0, w, h], fill=(16, 16, 16, 255))
+        for k in range(-2, 9):
+            x = k * 150
+            d.polygon([(x, h), (x + 70, h), (x + 70 + h * .5, 0), (x + h * .5, 0)], fill=P["accent"] + (255 if k % 3 == 0 else 40,))
+    elif name == "editorial":  # 듀오톤 줄 + 큰 원
+        d.rectangle([0, 0, w, h], fill=P["panel"] + (255,))
+        d.ellipse([w * .55, -h * .3, w * .55 + h * 1.1, h * .8], fill=P["accent"] + (230,))
+        for y in range(int(h * .15), h, 22):
+            d.line([(40, y), (w * .45, y)], fill=P["ink"] + (40,), width=2)
     elif name == "news":  # 남색 판 + 지구본 선 + 빨강 띠
         d.rectangle([0, 0, w, h], fill=P["accent2"] + (255,))
         cx, cy, r = w * 0.72, h * 0.5, h * 0.62
@@ -176,7 +214,8 @@ def hero(w: int, h: int, name: str = "") -> Image.Image:
 class Theme:
     @property
     def xfade(self):
-        return {"calm": 0.5, "news": 0.32, "arcade": 0.36, "neon": 0.3}.get(NAME, 0.28)
+        return {"calm": 0.5, "news": 0.32, "arcade": 0.36, "neon": 0.3, "luxe": 0.9, "glass": 0.6, "kinetic": 0.4,
+                "editorial": 0.6}.get(NAME, 0.28)
 
     def background(self, t):
         return background()

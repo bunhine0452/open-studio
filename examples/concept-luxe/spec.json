@@ -1,0 +1,66 @@
+{
+  "theme": "luxe",
+  "brand": "OPEN BOTTLE",
+  "label": "LIMITED",
+  "footer": "가상의 예시 상품 · AI 음성",
+  "bgm": {
+    "style": "chill"
+  },
+  "highlights": [
+    "첫",
+    "500개만"
+  ],
+  "scenes": [
+    {
+      "type": "cover",
+      "photo": "outdoor.jpg",
+      "tag": "LIMITED EDITION",
+      "headline": "하루를 여는\n[첫 잔]을 위해",
+      "deck": {
+        "text": "오픈 보틀 리미티드 (가상)",
+        "at": "하루를"
+      }
+    },
+    {
+      "type": "product",
+      "from": "오픈",
+      "kicker": "OPEN BOTTLE · LIMITED",
+      "headline": "손에 쥐는\n[조용한 사치]",
+      "image": "hero-cut.png",
+      "chips": [
+        {
+          "text": "이중 진공",
+          "at": "이중"
+        },
+        {
+          "text": "천연 대나무",
+          "at": "천연"
+        }
+      ]
+    },
+    {
+      "type": "cover",
+      "from": "단",
+      "photo": "outdoor.jpg",
+      "headline": "단 [500개]",
+      "big": {
+        "value": 500,
+        "unit": "개",
+        "at": "오백"
+      }
+    },
+    {
+      "type": "end",
+      "from": "십일",
+      "photo": "outdoor.jpg",
+      "kicker": "공개",
+      "todo": "11월 11일\n[오전 10시]"
+    }
+  ],
+  "caption_map": {
+    "오백 개": "500개",
+    "십일 월": "11월",
+    "십일 일": "11일",
+    "열 시": "10시"
+  }
+}

@@ -267,6 +267,14 @@ BANKS = {
                  step="drop", strike="brush", type="wood", shot="breeze", end="chime"),
     "news": dict(transition="swoosh", cover="stinger", hit="stamp", row="tick", ok="tick", no="err_buzz",
                  step="tick", strike="stamp", type="typewriter", shot="shutter", end="stinger"),
+    "luxe": dict(transition="breeze", cover="bell", hit="chime", row="wood", ok="wood", no="brush",
+                 step="drop", strike="brush", type="wood", shot="breeze", end="chime"),
+    "glass": dict(transition="riser", cover="sub_hit", hit="bell", row="blip", ok="blip", no="err_buzz",
+                  step="drop", strike="zap", type="key", shot="scan", end="chime"),
+    "kinetic": dict(transition="swoosh", cover="stamp", hit="stamp", row="tick", ok="tick", no="bump",
+                    step="select", strike="stamp", type="typewriter", shot="shutter", end="stinger"),
+    "editorial": dict(transition="page", cover="desk", hit="stamp", row="pencil", ok="pencil", no="pen_strike",
+                      step="pencil", strike="pen_strike", type="typewriter", shot="shutter", end="desk"),
 }
 LEVEL = {"transition": 0.10, "cover": 0.16, "hit": 0.2, "end": 0.16, "strike": 0.15}  # 사건별 목표 RMS(그 밖 0.12)
 

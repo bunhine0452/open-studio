@@ -1,0 +1,60 @@
+{
+  "theme": "editorial",
+  "no": 7,
+  "brand": "THE WRITING",
+  "label": "ISSUE 07",
+  "footer": "AI 음성",
+  "highlights": [
+    "다섯",
+    "할"
+  ],
+  "scenes": [
+    {
+      "type": "cover",
+      "photo": "desk.jpg",
+      "tag": "WRITING",
+      "headline": "잘 읽히는 글의\n[다섯 규칙]"
+    },
+    {
+      "type": "checks",
+      "from": "한",
+      "kicker": "Rules",
+      "headline": "지키면 [읽혀요]",
+      "rows": [
+        {
+          "text": "한 문장에 한 생각",
+          "ok": true,
+          "at": "한"
+        },
+        {
+          "text": "숫자는 출처와 함께",
+          "ok": true,
+          "at": "숫자는"
+        },
+        {
+          "text": "같은 대상은 같은 이름",
+          "ok": true,
+          "at": "같은"
+        },
+        {
+          "text": "줄표로 이어 붙이기",
+          "ok": false,
+          "at": "줄표"
+        }
+      ]
+    },
+    {
+      "type": "cover",
+      "from": "그리고",
+      "photo": "desk.jpg",
+      "headline": "끝에는\n[할 일 하나]"
+    },
+    {
+      "type": "end",
+      "from": "오늘",
+      "photo": "desk.jpg",
+      "todo": "오늘 쓴 글\n[비춰 보기]"
+    }
+  ],
+  "caption_map": {}
+}

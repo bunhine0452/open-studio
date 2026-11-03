@@ -235,3 +235,83 @@ body { font-family: "P", system-ui, sans-serif; color: var(--ink); -webkit-font-
 .phcap { position: absolute; left: 0; right: 0; top: 760px; color: #fff; }
 .phcap .head { color: #fff; text-shadow: 0 4px 30px rgb(0 0 0 / .5); }
 .phcap .head em { color: #fff; text-decoration: underline 8px var(--accent); text-underline-offset: 10px; }
+
+/* ===== luxe: 검정 + 샴페인 골드, 세리프, 금빛 가는 선, 커튼처럼 가운데서 열리는 느린 전환 ===== */
+.theme-luxe { --in: luxe-in; --outk: luxe-out; --xin: 1s; --xout: .9s; --tag-r: 0; --dot-r: 50%; --brand: var(--accent); --grain: .07; }
+.theme-luxe .head, .theme-luxe .brand, .theme-luxe .big .num, .theme-luxe .cap .box, .theme-luxe .pricebox .num2, .theme-luxe .no2 { font-family: "S", serif; }
+.theme-luxe .head { font-weight: 500; letter-spacing: -.01em; line-height: 1.22; }
+.theme-luxe .brand { font-weight: 500; letter-spacing: .32em; font-size: 30px; }
+.theme-luxe .head em, .theme-luxe .big .num, .theme-luxe .pricebox .num2 {
+  background: linear-gradient(100deg, #8a6a35 0%, #e9d3a1 38%, #c9a96e 55%, #f4e5bf 70%, #9b7a42 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+.theme-luxe .big .num { font-weight: 400; }
+.theme-luxe .rules i { height: 1px; background: color-mix(in srgb, var(--accent) 60%, transparent); } .theme-luxe .rules i + i { display: none; }
+.theme-luxe .rules b { height: 1px; }
+.theme-luxe .kicker { letter-spacing: .3em; font-weight: 600; font-size: 26px; }
+.theme-luxe .tag { background: transparent; color: var(--accent); border: 1px solid var(--accent); letter-spacing: .2em; font-weight: 600; }
+.theme-luxe .vig { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, rgb(201 169 110 / .12), transparent 60%), radial-gradient(ellipse at 50% 120%, rgb(0 0 0 / .7), transparent 60%); }
+.theme-luxe .frame-line { position: absolute; inset: 34px; border: 1px solid rgb(201 169 110 / .35); }
+.theme-luxe .cap .box { font-weight: 500; font-size: 54px; }
+.theme-luxe .cap .w.hl.on { color: var(--accent); }
+.theme-luxe .pic img { filter: saturate(.7) contrast(1.05); }
+@keyframes luxe-in { from { opacity: 0; clip-path: inset(0 50% 0 50%); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
+@keyframes luxe-out { to { opacity: 0; transform: scale(1.03); } }
+
+/* ===== glass: 흐르는 그라데이션 위 유리 카드, 흐림이 걷히며 다가오는 전환 ===== */
+.theme-glass { --in: glass-in; --outk: glass-out; --xin: .7s; --xout: .6s; --tag-r: 999px; --dot-r: 50%; --brand: #fff; --grain: .05; }
+.theme-glass .blob { filter: blur(120px); }
+.theme-glass .head { font-weight: 800; }
+.theme-glass .head em { background: linear-gradient(90deg, #ffd1f0, #ff8fd2 40%, #9fb4ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.theme-glass .pic, .theme-glass .code, .theme-glass .col, .theme-glass .chip, .theme-glass .cap .box, .theme-glass .fact, .theme-glass .rows .row,
+.theme-glass .shot img, .theme-glass .card img { backdrop-filter: blur(24px) saturate(1.4); }
+.theme-glass .code, .theme-glass .chip, .theme-glass .cap .box { background: rgb(255 255 255 / .12); border: 1px solid rgb(255 255 255 / .28); box-shadow: 0 20px 60px rgb(10 0 40 / .25), inset 0 1px 0 rgb(255 255 255 / .35); }
+.theme-glass .cap .box { border-radius: 26px; }
+.theme-glass .pic { border-radius: 30px; } .theme-glass .pic img { opacity: .92; }
+.theme-glass .rules i { background: rgb(255 255 255 / .35); height: 2px; } .theme-glass .rules i + i { display: none; }
+.theme-glass .rules b { background: linear-gradient(90deg, #ff8fd2, #9fb4ff); }
+.theme-glass .tag { background: rgb(255 255 255 / .18); color: #fff; border: 1px solid rgb(255 255 255 / .4); backdrop-filter: blur(10px); }
+@keyframes glass-in { from { opacity: 0; filter: blur(30px); transform: scale(1.08); } to { opacity: 1; filter: none; transform: none; } }
+@keyframes glass-out { to { opacity: 0; filter: blur(20px); transform: scale(.96); } }
+
+/* ===== kinetic: 글자가 하나씩 쾅, 노란 강조 상자, 흐르는 거대 글자 띠, 사선 슬래시 전환 ===== */
+.theme-kinetic { --in: kin-in; --outk: kin-out; --xin: .45s; --xout: .4s; --tag-r: 0; --dot-r: 0; --brand: var(--accent); }
+.theme-kinetic .head { font-weight: 900; letter-spacing: -.05em; line-height: 1.04; }
+.theme-kinetic .head .ln { overflow: visible; }
+.theme-kinetic .kl { display: block; }
+.theme-kinetic .ch { display: inline-block; animation: slam .5s cubic-bezier(.2, 1.6, .4, 1) both; animation-delay: var(--d); transform-origin: 50% 100%; }
+.theme-kinetic .ch.e { background: var(--accent); color: var(--on-accent); padding: 0 .02em; }
+@keyframes slam { 0% { opacity: 0; transform: translateY(70%) scale(1.6) rotate(10deg); } 60% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+.theme-kinetic .marq { position: absolute; left: -10%; right: -10%; white-space: nowrap; font-weight: 900; font-size: 220px; letter-spacing: -.04em; line-height: 1;
+  color: transparent; -webkit-text-stroke: 2px rgb(255 255 255 / .09); transform: rotate(-8deg); }
+.theme-kinetic .marq span { display: inline-block; animation: marq var(--total) linear both; }
+.theme-kinetic .m1 { top: 1180px; } .theme-kinetic .m2 { top: 1420px; } .theme-kinetic .m2 span { animation-direction: reverse; }
+@keyframes marq { from { transform: translateX(0); } to { transform: translateX(-40%); } }
+.theme-kinetic .rules i { background: var(--accent); } .theme-kinetic .rules i + i { display: none; } .theme-kinetic .rules b { background: var(--accent2); height: 6px; top: -1px; }
+.theme-kinetic .kicker { background: var(--accent); color: var(--on-accent); display: inline-block; padding: 4px 12px; }
+.theme-kinetic .cap .box { font-size: 62px; }
+.theme-kinetic .cap .w { opacity: .45; padding: 0 6px; }
+.theme-kinetic .cap .w.now { background: var(--accent); color: var(--on-accent); opacity: 1; transform: rotate(-2deg) scale(1.08); }
+.theme-kinetic .scene::before { content: ""; position: absolute; top: -200px; bottom: -200px; width: 140px; left: -300px; background: var(--accent); transform: skewX(-18deg); z-index: 5;
+  animation: kslash .45s var(--io) both; animation-delay: var(--t0); }
+@keyframes kslash { from { transform: translateX(0) skewX(-18deg); } to { transform: translateX(1700px) skewX(-18deg); } }
+@keyframes kin-in { from { clip-path: polygon(0 0, 0 0, -30% 100%, -30% 100%); } to { clip-path: polygon(0 0, 130% 0, 100% 100%, -30% 100%); } }
+@keyframes kin-out { 0%, 98% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ===== editorial: 잡지 지면 · 세리프 · 큰 호수 번호 · 듀오톤 사진 · 종이가 올라오는 전환 ===== */
+.theme-editorial { --in: ed-in; --outk: ed-out; --xin: .7s; --xout: .7s; --tag-r: 0; --dot-r: 50%; --brand: var(--ink); --grain: .06; }
+.theme-editorial .scene { background: var(--bg); box-shadow: 0 -30px 60px rgb(0 0 0 / .10); }
+.theme-editorial .head, .theme-editorial .brand, .theme-editorial .big .num, .theme-editorial .cap .box, .theme-editorial .pricebox .num2 { font-family: "S", serif; }
+.theme-editorial .head { font-weight: 700; letter-spacing: -.02em; line-height: 1.16; }
+.theme-editorial .brand { font-weight: 800; letter-spacing: -.01em; font-size: 42px; }
+.theme-editorial .head em { color: var(--accent); }
+.theme-editorial .kicker { font-weight: 700; letter-spacing: .24em; font-size: 24px; text-transform: uppercase; }
+.theme-editorial .issue { position: absolute; right: 54px; top: 1180px; font-family: "S", serif; font-weight: 800; font-size: 300px; line-height: 1; color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--accent) 22%, transparent); }
+.theme-editorial .cols-bg i { position: absolute; top: 200px; bottom: 360px; width: 1px; background: color-mix(in srgb, var(--rule) 70%, transparent); }
+.theme-editorial .cols-bg i:first-child { left: 360px; } .theme-editorial .cols-bg i:last-child { left: 720px; }
+.theme-editorial .pic img, .theme-editorial .fullph img, .theme-editorial .shot img { filter: grayscale(1) contrast(1.1); }
+.theme-editorial .pic::after, .theme-editorial .fullph::before { content: ""; position: absolute; inset: 0; background: var(--accent); mix-blend-mode: screen; opacity: .55; z-index: 1; pointer-events: none; }
+.theme-editorial .cap .box { font-weight: 600; font-size: 54px; }
+.theme-editorial .cap .w.hl.on { color: var(--accent); }
+.theme-editorial .rules i { height: 2px; } .theme-editorial .rules b { background: var(--accent); }
+@keyframes ed-in { from { transform: translateY(100%) rotate(2.5deg); transform-origin: left bottom; } to { transform: none; } }
+@keyframes ed-out { to { transform: translateY(-6%) scale(.97); filter: brightness(.9); } }

@@ -1,0 +1,91 @@
+{
+  "theme": "glass",
+  "brand": "AI IN ONE",
+  "label": "1분 개념",
+  "footer": "AI 음성",
+  "highlights": [
+    "스스로",
+    "일을"
+  ],
+  "scenes": [
+    {
+      "type": "cover",
+      "tag": "개념 정리",
+      "headline": "AI 에이전트,\n[한 문장]으로"
+    },
+    {
+      "type": "steps",
+      "from": "목표를",
+      "kicker": "에이전트가 하는 일",
+      "headline": "목표 하나면\n[끝까지]",
+      "steps": [
+        {
+          "text": "목표를 받아요",
+          "at": "목표를"
+        },
+        {
+          "text": "스스로 계획해요",
+          "at": "스스로"
+        },
+        {
+          "text": "도구를 써서 끝내요",
+          "at": "도구를"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "from": "챗봇은",
+      "kicker": "차이",
+      "headline": "대답과 [일]",
+      "rows": [
+        {
+          "left": "챗봇",
+          "right": "대답",
+          "at": "챗봇은"
+        },
+        {
+          "left": "에이전트",
+          "right": "일",
+          "alert": true,
+          "at": "에이전트는"
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "from": "예를",
+      "kicker": "예시",
+      "headline": "파일을 읽고\n[직접 고쳐요]",
+      "lines": [
+        {
+          "code": "> 로그인 버그 고쳐 줘",
+          "at": "예를"
+        },
+        {
+          "code": "Read  src/auth.ts",
+          "at": "파일을"
+        },
+        {
+          "code": "Bash  npm test",
+          "at": "명령을"
+        },
+        {
+          "code": "Edit  src/auth.ts",
+          "hot": true,
+          "at": "실행해서"
+        }
+      ],
+      "label": "Claude Code 작업 흐름 예시"
+    },
+    {
+      "type": "end",
+      "from": "오늘",
+      "todo": "작은 일 하나\n[맡겨 보기]"
+    }
+  ],
+  "caption_map": {
+    "클로드 코드": "Claude Code",
+    "에이아이": "AI"
+  }
+}

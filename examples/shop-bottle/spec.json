@@ -1,0 +1,80 @@
+{
+  "title": "점심까지 따뜻한 물병 | 오픈 보틀 500ml (예시)",
+  "theme": {
+    "base": "paper",
+    "colors": {
+      "accent": "#4f7a5c"
+    }
+  },
+  "brand": "OPEN BOTTLE",
+  "label": "예시 상품",
+  "footer": "가상의 예시 상품 · AI 음성",
+  "bgm": {
+    "style": "pop"
+  },
+  "highlights": [
+    "식어",
+    "새지"
+  ],
+  "scenes": [
+    {
+      "type": "photo",
+      "image": "photos/desk.jpg",
+      "headline": "점심이면 식는\n[아침 커피]?"
+    },
+    {
+      "type": "product",
+      "from": "오픈",
+      "kicker": "OPEN BOTTLE 500ml",
+      "headline": "[12시간] 따뜻하게",
+      "image": "photos/hero-cut.png",
+      "chips": [
+        {
+          "text": "이중 진공",
+          "at": "이중"
+        },
+        {
+          "text": "보온 12시간",
+          "at": "열두"
+        },
+        {
+          "text": "320g",
+          "at": "삼백이십"
+        }
+      ]
+    },
+    {
+      "type": "photo",
+      "from": "대나무",
+      "image": "photos/cap.jpg",
+      "headline": "거꾸로 들어도\n[안 새요]",
+      "at": "대나무"
+    },
+    {
+      "type": "price",
+      "from": "정가",
+      "kicker": "지금 가격",
+      "headline": "[25,900원]",
+      "was": "32,000원",
+      "at_old": "정가",
+      "price": "25900",
+      "at": "지금은",
+      "off": "19%",
+      "note": "예시 가격이에요"
+    },
+    {
+      "type": "end",
+      "from": "구매",
+      "photo": "photos/outdoor.jpg",
+      "kicker": "구매 링크",
+      "todo": "프로필 링크에서\n[만나요]"
+    }
+  ],
+  "pinned": "구매 링크는 프로필에 있어요 (예시)",
+  "caption_map": {
+    "열두 시간": "12시간",
+    "삼백이십 그램": "320그램",
+    "삼만이천 원": "32,000원",
+    "이만오천구백 원": "25,900원"
+  }
+}

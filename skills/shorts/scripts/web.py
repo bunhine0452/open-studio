@@ -194,6 +194,32 @@ class Page:
                     media = f'<img src="{_file(c.path(it["image"]))}">'
                 cards.append(f'<div class="card" style="height:{h}px;--d:{ts[k]:.3f}s;--dn:{dn:.3f}s">{media}{tag}</div>')
             b.append(f'<div class="gal" style="top:{y}px;height:{h}px">{"".join(cards)}</div>')
+        elif kind == "product":  # 쇼핑: 누끼 상품이 무대 위로 떠오르고, 장점 칩이 하나씩
+            if sc.get("rank"):
+                b.append(f'<div class="rank a-pop" style="--d:{g(0.05):.3f}s">TOP <b>{int(sc["rank"])}</b></div>')
+            b += [self.kicker(sc, g(0)), head(sc["headline"], g(0.1), sc.get("size", 80))]
+            img = _file(c.path(sc["image"]))
+            b.append(f'<div class="pstage" style="--d:{g(0.25):.3f}s"><div class="spot"></div><div class="pfloor"></div>'
+                     f'<img class="pimg" src="{img}" style="--d:{g(0.25):.3f}s"><i class="sweep" style="--d:{g(0.9):.3f}s"></i></div>')
+            chips = "".join(f'<span class="chip" style="--d:{at(ch.get("at"), 1.0 + 0.4 * k):.3f}s">{esc_rich(ch["text"])}</span>'
+                            for k, ch in enumerate(sc.get("chips", [])))
+            if chips:
+                b.append(f'<div class="chips">{chips}</div>')
+        elif kind == "price":  # 정가 줄 긋고 → 할인가가 세어 올라가고 → 할인율 도장
+            b += [self.kicker(sc, g(0)), head(sc["headline"], g(0.05), sc.get("size", 80))]
+            t_old, t_new = at(sc.get("at_old"), 0.5), at(sc.get("at"), 1.0)
+            i = self.uid()
+            v = int(str(sc["price"]).replace(",", ""))
+            self.counts.append({"id": i, "t0": t_new, "dur": 0.7, "to": v, "prefix": "", "suffix": sc.get("unit", "원"), "comma": True})
+            old = (f'<div class="old a-fade" style="--d:{t_old:.3f}s">{html.escape(sc["was"])}<i style="--d:{t_old + 0.35:.3f}s"></i></div>'
+                   if sc.get("was") else "")
+            off = (f'<div class="off" style="--d:{t_new + 0.6:.3f}s">{html.escape(sc["off"])}</div>' if sc.get("off") else "")
+            note = f'<div class="pnote a-fade" style="--d:{t_new + 0.9:.3f}s">{esc_rich(sc["note"])}</div>' if sc.get("note") else ""
+            b.append(f'<div class="pricebox">{old}<div class="now"><span id="{i}" class="num2" style="--d:{t_new:.3f}s"></span>{off}</div>{note}</div>')
+        elif kind == "photo":  # 사진 한 장 꽉 차게 + 큰 글
+            t = at(sc.get("at"), 0.05)
+            b.append(f'<div class="fullph" style="--d:{t:.3f}s"><img src="{_file(c.path(sc["image"]))}" style="--d:{t:.3f}s"></div>')
+            b.append(f'<div class="phcap">{head(sc["headline"], t + 0.25, sc.get("size", 76))}</div>')
         elif kind == "end":
             b.append(self.picture(c, sc.get("photo"), 560, g(0)) + "</div>")
             b.append(f'<div class="todo-k a-fade" style="--d:{g(0.2):.3f}s">{html.escape(sc.get("kicker", "오늘 할 일"))}</div>')
@@ -272,6 +298,8 @@ def build_html(folder: Path, spec: dict, scene_ctxs: list, bounds: list, caps, t
     if name == "news":
         msg = " · ".join(filter(None, [spec.get("label"), spec.get("brand"), spec.get("title")]))
         ticker = f'<div class="ticker"><span>{html.escape((msg + "   ·   ") * 4)}</span></div>'
+    if spec.get("captions") is False:  # 무자막본
+        caps = []
     words = [{"t0": cp.t0, "t1": cp.t1, "w": [{"x": html.escape(x.strip("[]")), "s": s, "hl": x.startswith("[")}
                                              for x, s in cp.words]} for cp in caps]
     data = {"caps": words, "counts": pg.counts, "types": pg.types, "total": total}
@@ -282,6 +310,7 @@ def build_html(folder: Path, spec: dict, scene_ctxs: list, bounds: list, caps, t
 <div id="stage">
 {"".join(secs)}
 {top}
+{'<div class="adtag">광고</div>' if spec.get("ad") else ""}
 <div class="mast"><span class="brand">{html.escape(spec.get("brand", ""))}</span><span class="label">{html.escape(spec.get("label", ""))}</span></div>
 <div class="rules"><i></i><i></i><b></b></div>
 <div class="cap"></div>

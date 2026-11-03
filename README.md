@@ -9,7 +9,7 @@
 | **쇼츠** | "쇼츠 만들어 줘: 주제" | 1080×1920 mp4, 자막, 효과음, 업로드 문구 | 쇼츠 자동화 스킬 99,000원~ |
 | **카드뉴스** | "카드뉴스 만들어 줘: 주제/링크" | 인스타 PNG(4:5·1:1·9:16), PDF, 릴스 mp4, 캡션·해시태그 | AI 카드뉴스 도구 구독, 대행 |
 | **상세페이지** | "상세페이지 만들어 줘" + 사진 | 860·780·1080 긴 이미지와 조각, 대표 이미지, 누끼, HTML 원본, 과장 광고 점검 | 크몽 60,000원~, SaaS 월 29,000~149,000원 |
-| 쇼핑 쇼츠 | (만드는 중) | | 쇼핑 쇼츠 프로그램 350,000원, 1편 8,000원 |
+| **쇼핑 쇼츠** | "이 상품 쇼핑 쇼츠 만들어 줘" | 15~30초 상품 영상(누끼 무대·가격표·장점 칩), 배경음악, 자막본·무자막본, 제휴 대가성 문구 | 쇼츠 자동 프로그램 350,000원/년, SaaS 월 29,900~249,000원 |
 | 블로그 글 도우미 | (만드는 중) | | 블로그 자동 포스팅 99,000~1,290,000원 |
 
 공통: 테마 5종(지면·네온·아케이드·차분·뉴스) + 내 브랜드 색·글꼴·로고, 한국어 줄바꿈과 읽기 규칙, AI 말투 점검.
@@ -145,6 +145,24 @@ uv run $D/detail.py examples/detail-bottle                    # 세 폭 + 조각
 uv run $D/detail.py examples/detail-bottle --preview --style dark
 ```
 섹션 종류와 문구 규칙: [`skills/detailpage/references/sections.md`](skills/detailpage/references/sections.md).
+
+---
+
+# 쇼핑 쇼츠
+
+쇼츠 엔진에 쇼핑 장면 세 가지를 더했습니다: **누끼 상품이 무대 위로 떠오르는 장면**(빛이 한 번 훑고 장점 칩이 말에 맞춰 하나씩), **가격표**(정가에 줄이 그어지고 판매가가 세어 올라가고 할인율 도장), **사진 장면**(꽉 찬 사진 + 큰 글).
+
+- 배경음악은 numpy 로 합성합니다(pop·chill·tech). 음원 파일이 없어 저작권 걱정이 없고, 말하는 동안 자동으로 줄어듭니다.
+- 자막본과 무자막본(`--no-captions`)을 둘 다 뽑습니다.
+- 제휴(쿠팡 파트너스 등)면 화면에 '광고' 표시, 설명란·고정 댓글에 대가성 문구를 넣습니다. 상품 페이지를 자동으로 긁거나 댓글·DM 을 자동으로 뿌리는 기능은 넣지 않았습니다(약관·스팸 정책).
+
+```bash
+S=skills/shorts/scripts
+uv run $S/speakable.py examples/shop-bottle --write-spec
+uv run $S/voice.py examples/shop-bottle
+uv run $S/render.py examples/shop-bottle                 # 자막본
+uv run $S/render.py examples/shop-bottle --no-captions   # 무자막본
+```
 
 ---
 

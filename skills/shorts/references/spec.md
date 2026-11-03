@@ -24,6 +24,7 @@
 - `highlights` = 자막에서 강조색으로 칠할 낱말(narration 기준). `[대괄호]` = 화면 글자 강조.
 - 경로(`photo`·`image`)는 편 폴더 기준 상대 경로나 절대 경로. `photo` 를 빼면 테마 그림이 들어간다.
 - 모든 장면에 `source`(아래 출처 줄)를 달 수 있다(end 제외).
+- `"bgm": {"style": "pop"|"chill"|"tech", "gain": -14}` 코드로 합성한 배경음악(말하는 동안 자동으로 줄어듦). `"ad": true` 화면에 '광고' 표시. `"captions": false` 또는 `--no-captions` 무자막본.
 
 ## 장면 종류
 
@@ -39,5 +40,8 @@
 | shot | kicker, headline, image, crop?[x0,y0,x1,y1], blur?[[x0,y0,x1,y1]], at?, label? | 실제 화면 캡처 |
 | gallery | kicker, headline, items[{image 또는 video, offset?, label?, at, sound?}], y?, height? | 3D 카드로 넘기며 장마다 효과음. video 면 카드 안에서 영상이 흐른다 |
 | end | photo?, kicker?, todo, cta?, link? | 끝 카드: 오늘 할 일 + 따라 칠 주소 |
+| photo | image, headline, at? | 사진 한 장 꽉 차게 + 큰 글 (모션 엔진) |
+| product | image(누끼 PNG), kicker?, headline, chips[{text, at}], rank? | 상품이 무대 위로 떠오르고 장점 칩이 하나씩 (쇼핑) |
+| price | was?, price(숫자), off?, note, at_old?, at | 정가 줄 긋기 → 판매가 세기 → 할인율 도장 (쇼핑, note 에 기준 날짜) |
 
 화면 세로 배치(1920 기준): 위 0~170 채널 줄 · 190~ 장면 · 1430 자막 · 1560~ 출처 · 1650 아래 문구 · 그 아래 ~320px 는 유튜브 UI 자리라 비운다.

@@ -151,6 +151,8 @@ def still_words(folder, narration):
 def build(folder: Path, argv=()):
     import scenes as S  # 장면 종류별 조립 (scenes.py)
     spec = json.loads((folder / "spec.json").read_text())
+    if "--no-captions" in argv:  # 무자막본 (자막을 플랫폼에서 따로 달 때)
+        spec["captions"] = False
     if "--theme" in argv:  # 같은 편을 다른 테마로 (갤러리·비교용)
         spec["theme"] = argv[list(argv).index("--theme") + 1]
     theme = themes.use(spec.get("theme", "paper"), spec.get("brand", "MY CHANNEL"), spec.get("label", ""),
@@ -227,10 +229,17 @@ def build(folder: Path, argv=()):
         print(folder / "storyboard.jpg", round(total, 2), "초")
         return
     raw, mixed = folder / "audio" / "_mix.wav", folder / "audio" / "_mix-norm.wav"
-    audio.write_wav(raw, audio.mix(track.copy(), events, themes.SFX_BANK, spec.get("sfx")))
+    full = audio.mix(track.copy(), events, themes.SFX_BANK, spec.get("sfx"))
+    if spec.get("bgm"):  # 코드로 합성한 배경음악, 말하는 동안 자동으로 줄어든다
+        import music
+        bg = spec["bgm"] if isinstance(spec["bgm"], dict) else {"style": spec["bgm"]}
+        bed = music.bed(total, bg.get("style", "pop"), bg.get("bpm"), bg.get("gain", -14), voice=track)
+        n = min(len(full), len(bed))
+        full[:n] += bed[:n]
+    audio.write_wav(raw, full)
     audio.loudnorm(raw, mixed)
     audio.srt(caps, folder / "captions.srt")
-    out = folder / f"{folder.name}.mp4"
+    out = folder / f"{folder.name}{'-nocap' if spec.get('captions') is False else ''}.mp4"
     if motion:
         web.render(page, total, mixed, out)
     else:

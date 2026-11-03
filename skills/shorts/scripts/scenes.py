@@ -121,6 +121,22 @@ def build_scene(c: Ctx) -> list:
         L.append(Gallery(items, y=sc.get("y", 470), max_h=sc.get("height", 860)))
         for (t, _, _), it in zip(items, sc["items"]):
             c.sound(it.get("sound", "shot"), t)  # 장마다 그 테마의 소리 (sfx.py GEN 이름)
+    elif kind in ("product", "price", "photo"):  # 쇼핑 장면 — 그림은 모션 엔진(web.py)이 그린다. 여기선 효과음과 간단한 PIL 대체만
+        L += [kicker(sc.get("kicker", "")), Head(sc["headline"], 0.05)]
+        if kind == "product":
+            L.append(Picture(c.path(sc["image"]), (M, 560, W_TEXT, 760), t0=0.25, wipe=0.4))
+            c.sound("hit", 0.3)
+            for k, ch in enumerate(sc.get("chips", [])):
+                c.sound("row", c.at(ch.get("at"), 1.0 + 0.4 * k), k)
+        elif kind == "price":
+            t_new = c.at(sc.get("at"), 1.0)
+            if sc.get("was"):
+                c.sound("strike", c.at(sc.get("at_old"), 0.5) + 0.35)
+            c.sound("hit", t_new)
+            c.sound("cover", t_new + 0.6)
+        else:
+            L.append(Picture(c.path(sc["image"]), (0, 190, 1080, 1100), t0=c.at(sc.get("at"), 0.05), wipe=0.5))
+            c.sound("shot", c.at(sc.get("at"), 0.05))
     elif kind == "end":
         photo = c.path(sc["photo"]) if sc.get("photo") else None
         L += [Picture(photo, (M, 190, W_TEXT, 560), t0=0.0, wipe=0.45),

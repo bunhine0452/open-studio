@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["pillow", "numpy"]
+# dependencies = ["pillow", "numpy", "playwright"]
 # ///
 """spec.json 하나로 쇼츠를 렌더한다.
 
@@ -9,6 +9,7 @@ uv run render.py <편 폴더> [--preview] [--frames 1.5,20]
   --preview  장면마다 3장씩 모은 스토리보드 storyboard.jpg 만 (몇 초)
   --frames   그 시각들의 원본 크기 프레임을 _frames.jpg 로
   --theme    spec 의 테마 대신 이 테마로 (paper|neon|arcade|calm|news)
+  --simple   모션 엔진(헤드리스 Chrome) 대신 가벼운 PIL 엔진으로 (Chrome 이 없을 때)
   --still    음성 없이 화면만 (대본 낱말마다 0.32초 가짜 시각) — 대본 확정 전 디자인 확인용
 
 spec 형식은 references/spec.md. 요점:
@@ -130,7 +131,8 @@ def chunks_from(words, seg_starts, highlights, cmap=None, max_chars=18, min_char
             return ""
         return f"[{w}]" if any(norm(raw).startswith(h) for h in hl) else w
 
-    return [(" ".join(s for s in (label(i) for i in x) if s), x[0], x[-1]) for x in merged]
+    return [(" ".join(s for s in (label(i) for i in x) if s), x[0], x[-1], [(label(i), i) for i in x if label(i)])
+            for x in merged]
 
 
 def still_words(folder, narration):
@@ -172,37 +174,56 @@ def build(folder: Path, argv=()):
     total = len(track) / audio.SR
     chunks = chunks_from(W_, starts, spec.get("highlights", []), spec.get("caption_map"))
     caps = []
-    for k, (txt, a, b) in enumerate(chunks):
+    for k, (txt, a, b, toks) in enumerate(chunks):
         t1 = W_[chunks[k + 1][1]]["s"] if k + 1 < len(chunks) else total - 0.3
         caps.append(Caption(W_[a]["s"] - 0.05, min(t1 - 0.02, W_[b]["e"] + 0.6), txt))
+        caps[-1].words = [(lbl, W_[i]["s"]) for lbl, i in toks]  # 낱말 자막(모션 엔진)
     bounds = [0.0] + [seg_t[i][0] - 0.12 for i in range(1, len(segments))] + [total]
 
-    events, scenes = [], []
+    events, scenes, ctxs = [], [], []
     for i, sc in enumerate(sc_spec):
         ctx = S.Ctx(i, sc, spec, folder, segments[i], bounds[i], W_, an, events)
+        ctxs.append(ctx)
         layers = S.build_scene(ctx)
         if i:
             events.append((bounds[i], "transition", 0))
         scenes.append(Scene(bounds[i], bounds[i + 1], layers))
 
+    motion = "--simple" not in argv  # 기본은 모션 엔진(헤드리스 Chrome), --simple 은 PIL 엔진
+    if motion:
+        import web
+        page = web.build_html(folder, spec, ctxs, bounds, caps, total)
+        shot = None
+
+        def grab(t):
+            nonlocal shot
+            shot = shot or web.Browser(page)
+            return shot.image(t)
+    else:
+        def grab(t):
+            return frame_at(t, scenes, caps, total, theme).convert("RGB")
+
     if "--frames" in argv:
         from PIL import Image
         ts = [float(x) for x in argv[list(argv).index("--frames") + 1].split(",")]
-        ims = [frame_at(t, scenes, caps, total, theme).convert("RGB") for t in ts]
+        ims = [grab(t) for t in ts]
         strip = Image.new("RGB", (1080 * len(ims), 1920))
         for k, im in enumerate(ims):
             strip.paste(im, (1080 * k, 0))
         strip.save(folder / "_frames.jpg", quality=88)
+        if motion and shot:
+            shot.close()
         print(folder / "_frames.jpg")
         return
     if "--preview" in argv:
         from PIL import Image
-        shots = [frame_at(s.t0 + (s.t1 - s.t0) * f, scenes, caps, total, theme).convert("RGB").resize((360, 640))
-                 for s in scenes for f in (0.35, 0.7, 0.97)]
+        shots = [grab(s.t0 + (s.t1 - s.t0) * f).resize((360, 640)) for s in scenes for f in (0.35, 0.7, 0.97)]
         sheet = Image.new("RGB", (360 * 6, 640 * ((len(shots) + 5) // 6)))
         for k, im in enumerate(shots):
             sheet.paste(im, ((k % 6) * 360, (k // 6) * 640))
         sheet.save(folder / "storyboard.jpg", quality=85)
+        if motion and shot:
+            shot.close()
         print(folder / "storyboard.jpg", round(total, 2), "초")
         return
     raw, mixed = folder / "audio" / "_mix.wav", folder / "audio" / "_mix-norm.wav"
@@ -210,7 +231,10 @@ def build(folder: Path, argv=()):
     audio.loudnorm(raw, mixed)
     audio.srt(caps, folder / "captions.srt")
     out = folder / f"{folder.name}.mp4"
-    render(scenes, caps, total, out, mixed, theme)
+    if motion:
+        web.render(page, total, mixed, out)
+    else:
+        render(scenes, caps, total, out, mixed, theme)
     raw.unlink(missing_ok=True)
     mixed.unlink(missing_ok=True)
     print(out, round(total, 2), "초")

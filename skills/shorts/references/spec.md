@@ -37,7 +37,7 @@
 | ranking | kicker, headline, items[{name, value?, desc?, at}] | 순위·추천 목록 (깃허브 저장소면 value 에 "★ 6.6k") |
 | code | kicker, headline, lines[{code, hot?, at}], label? | 명령·코드 (줄당 36자, 한글 금지) |
 | shot | kicker, headline, image, crop?[x0,y0,x1,y1], blur?[[x0,y0,x1,y1]], at?, label? | 실제 화면 캡처 |
-| gallery | kicker, headline, items[{image, label?, at, sound?}], y?, height? | 여러 장을 차례로 넘기며 장마다 효과음 |
+| gallery | kicker, headline, items[{image 또는 video, offset?, label?, at, sound?}], y?, height? | 3D 카드로 넘기며 장마다 효과음. video 면 카드 안에서 영상이 흐른다 |
 | end | photo?, kicker?, todo, cta?, link? | 끝 카드: 오늘 할 일 + 따라 칠 주소 |
 
 화면 세로 배치(1920 기준): 위 0~170 채널 줄 · 190~ 장면 · 1430 자막 · 1560~ 출처 · 1650 아래 문구 · 그 아래 ~320px 는 유튜브 UI 자리라 비운다.

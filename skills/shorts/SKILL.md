@@ -6,7 +6,8 @@ description: 주제 한 줄로 세로 쇼츠(1080×1920, 30~60초) 한 편을 �
 # 쇼츠 만들기
 
 이 SKILL.md 가 있는 폴더를 `$SKILL` 이라고 부른다. 도구는 `$SKILL/scripts/`, 글꼴은 `$SKILL/fonts/`(Pretendard, OFL).
-필요한 것: `ffmpeg`, `uv`(파이썬 의존성은 uv 가 알아서 받는다). 처음이면 `ffmpeg -version`, `uv --version` 으로 확인하고, 없으면 설치 명령을 안내한다(맥 `brew install ffmpeg uv`).
+필요한 것: `ffmpeg`, `uv`, Chrome(모션 렌더). 처음이거나 "설치 점검"을 부탁받으면 `uv run $SKILL/scripts/doctor.py` 를 돌려 ❌ 항목의 설치 명령을 안내한다.
+사용자가 초보자로 보이면 명령을 대신 실행하고, 결과를 쉬운 말로 알려 준다. 사람용 안내서: 저장소 `docs/GUIDE.md`.
 
 먼저 읽는다: `references/writing.md`(대본·읽기·문체 규칙). 장면을 짤 때 `references/spec.md`, 테마를 고를 때 `references/themes.md`.
 
@@ -26,9 +27,11 @@ description: 주제 한 줄로 세로 쇼츠(1080×1920, 30~60초) 한 편을 �
    "확인 필요"는 하나씩 직접 판단해 draft 를 고치거나 narration 을 손본다. 문체 경고도 고친다. 그다음 spec 을 쓰고 `--write-spec` 으로 caption_map 을 합친다.
 5. **spec.json** — `references/spec.md` 형식. 장면 `from`·요소 `at` 은 **narration.txt 의 실제 낱말**(읽는 소리) 1~2개. 헤드라인 두 줄, 줄당 14자 안팎, 강조어 `[대괄호]`.
    음성 전에 `uv run $SKILL/scripts/render.py <폴더> --still --preview` 로 화면을 먼저 본다(무음·가짜 시각, 몇 초).
-6. **음성** — `uv run $SKILL/scripts/voice.py <폴더>` (기본 edge-tts, 무료·키 없음, `--voice ko-KR-SunHiNeural|ko-KR-InJoonNeural`, `--rate +12%`).
+6. **음성** — `uv run $SKILL/scripts/voice.py <폴더>` (기본 edge-tts, 무료·키 없음, 방송용 다듬기 자동). 목소리를 고르지 않았으면
+   `--audition` 으로 목소리 3개 × 빠르기 3단계 샘플을 만들어 사용자가 듣고 고르게 한다(파일 경로를 알려 준다). 고른 뒤 `--voice` `--rate` (`--tempo 1.08` 처럼 만든 뒤 빠르기만 올리는 쪽이 말투가 덜 뭉개질 때가 많다).
    사용자가 ElevenLabs 키를 갖고 있고 원할 때만 `--engine elevenlabs --voice <id>`(유료). 대본을 고치면 그 뒤에 한 번만 다시 만든다.
-7. **렌더·검수** — `render.py <폴더> --preview` 로 storyboard.jpg 를 직접 본다(글자 겹침·잘림·빈 화면·자막 끊김·자막에 한글 소리 표기가 남았는지) → 고친다 → `render.py <폴더>` →
+7. **렌더·검수** — 기본은 모션 엔진(HTML/CSS 를 헤드리스 Chrome 이 프레임마다 캡처: 마스크로 올라오는 제목, 낱말마다 켜지는 자막, 선 그리기, 테마별 전환). Chrome 이 없으면 `--simple`(PIL).
+   `render.py <폴더> --preview` 로 storyboard.jpg 를 직접 본다(글자 겹침·잘림·빈 화면·자막 끊김·자막에 한글 소리 표기가 남았는지) → 고친다 → `render.py <폴더>` →
    `bash $SKILL/scripts/check_video.sh <폴더>/<폴더명>.mp4` (1080×1920 · decode OK · -16 LUFS 근처) → `_contact.jpg` 를 보고 지운다.
 8. **업로드 문구** — `caption.txt`(설명란: 핵심 2~3줄 + 출처 + "AI 음성으로 읽었어요." + 해시태그 3~5개), spec 의 `title`(검색어를 앞에, 60자 안, `<` `>` 금지)·`pinned`(고정 댓글).
    유튜브 쇼츠 설명란 링크는 눌리지 않는다 → 끝 장면 `link` 에 따라 칠 수 있는 짧은 주소를 보여 준다.
@@ -42,5 +45,7 @@ description: 주제 한 줄로 세로 쇼츠(1080×1920, 30~60초) 한 편을 �
 - 코드 칸(`code`)은 줄당 36자 이하, 한글 금지(고정폭 글꼴에 한글이 없을 수 있다). 한글 설명은 `label`.
 - 큰 숫자(`big`)는 1만 이상이면 쉼표가 붙는다. 연도처럼 쉼표가 없어야 하면 `"comma": false`.
 - 자막이 "에스에스에이치"로 뜨면 caption_map 이 빠진 것 → `speakable.py --write-spec` 또는 손으로 추가.
+- 전환 순간은 스토리보드에 안 잡힌다 → `render.py <폴더> --frames 7.1,7.3,7.5` 로 전환 직후 몇 프레임을 본다.
+- 갤러리 카드에 `"video"` 를 주면 카드 안에서 그 영상이 흐른다(다른 편이나 예시를 보여 줄 때). `"offset"` 초부터 시작.
 - 효과음이 주제와 안 맞으면 spec `"sfx": {"row": "drop"}` 처럼 사건별로 바꾼다(이름은 references/themes.md).
 - AI 로 만든 실사 인물·실제 사건을 바꾼 장면이 있으면 업로드 때 YouTube 'AI 사용' 공개를 '예'로 한다.

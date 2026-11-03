@@ -13,6 +13,13 @@ uv run voice.py <편 폴더> [--engine edge|elevenlabs] [--voice ko-KR-SunHiNeur
               · ko-KR-HyunsuMultilingualNeural(남). 말 빠르기 --rate (+0% ~ +25%, 쇼츠는 +10% 안팎)
   elevenlabs  유료 선택지. 환경 변수 ELEVENLABS_API_KEY, --voice <voice_id>, --model eleven_v3
 낱말 시각은 엔진이 주는 경계(글자·낱말 시각)를 대본 글자에 맞춰 붙인다 — 받아쓰기(Whisper)가 필요 없다.
+
+목소리 품질 (전부 무료)
+  --audition  첫 문장을 한국어 목소리 3개 × 빠르기 3단계로 들어 볼 수 있게 audio/audition/ 에 만든다 → 귀로 고른다
+  --polish    방송용 다듬기(기본 켜짐): 웅웅거림 자르기·낮은 울림 살짝·또렷함(3kHz) 올리기·치찰음 줄이기·가벼운 압축.
+              시간은 바꾸지 않아 낱말 시각이 그대로다. 끄려면 --no-polish
+  --tempo 1.1 만든 뒤 ffmpeg 로 빠르기만 올린다(음높이 유지). 엔진 빠르기보다 말투가 덜 뭉개질 때가 많다. 낱말 시각도 맞춰 줄인다
+  --pitch +0Hz edge 목소리 높낮이 (-20Hz ~ +20Hz 안팎)
 """
 from __future__ import annotations
 
@@ -77,9 +84,42 @@ def boundaries_to_chars(bounds):
     return chars
 
 
-async def _edge(script, voice, rate, out_mp3):
+POLISH = ("highpass=f=75,lowpass=f=13500,equalizer=f=180:t=q:w=1.0:g=1.5,equalizer=f=3200:t=q:w=1.2:g=2.5,"
+          "deesser=i=0.4,acompressor=threshold=-20dB:ratio=2.5:attack=8:release=120:makeup=2")
+KO_VOICES = ("ko-KR-SunHiNeural", "ko-KR-InJoonNeural", "ko-KR-HyunsuMultilingualNeural")
+
+
+def post(mp3: Path, polish=True, tempo=1.0):
+    """다듬기·빠르기를 ffmpeg 한 번에. 반환: 시각에 곱할 배율."""
+    chain = [POLISH] if polish else []
+    if abs(tempo - 1.0) > 1e-3:
+        chain.append(f"atempo={tempo}")
+    if not chain:
+        return 1.0
+    tmp = mp3.with_name(mp3.stem + "-raw.mp3")
+    mp3.replace(tmp)
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(tmp), "-af", ",".join(chain), "-c:a", "libmp3lame", "-q:a", "2",
+                    str(mp3)], check=True)
+    tmp.unlink()
+    return 1.0 / tempo
+
+
+def audition(folder: Path, script: str):
+    first = re.split(r"(?<=[.?!])\s", script, maxsplit=1)[0]
+    out = folder / "audio" / "audition"
+    out.mkdir(parents=True, exist_ok=True)
+    for v in KO_VOICES:
+        for rate in ("+0%", "+10%", "+20%"):
+            f = out / f"{v.split('-')[2].replace('Neural', '')}{rate.replace('%', '')}.mp3"
+            edge(first, f, v, rate)
+            post(f, True)
+            print(f)
+    print("들어 보고 마음에 드는 목소리·빠르기를 --voice / --rate 로 넘기세요")
+
+
+async def _edge(script, voice, rate, out_mp3, pitch="+0Hz"):
     import edge_tts
-    comm = edge_tts.Communicate(script, voice, rate=rate, boundary="WordBoundary")
+    comm = edge_tts.Communicate(script, voice, rate=rate, pitch=pitch, boundary="WordBoundary")
     bounds = []
     with open(out_mp3, "wb") as f:
         async for ch in comm.stream():
@@ -90,8 +130,8 @@ async def _edge(script, voice, rate, out_mp3):
     return boundaries_to_chars(bounds)
 
 
-def edge(script, out_mp3, voice="ko-KR-SunHiNeural", rate="+12%"):
-    return asyncio.run(_edge(script, voice, rate, out_mp3))
+def edge(script, out_mp3, voice="ko-KR-SunHiNeural", rate="+12%", pitch="+0Hz"):
+    return asyncio.run(_edge(script, voice, rate, out_mp3, pitch))
 
 
 def elevenlabs(script, out_mp3, voice, model="eleven_v3", speed=None):
@@ -119,6 +159,10 @@ def main(argv=None):
     ap.add_argument("--rate", default="+12%", help="edge 말 빠르기")
     ap.add_argument("--model", default="eleven_v3")
     ap.add_argument("--speed", type=float, default=None, help="elevenlabs 말 빠르기 0.7~1.2")
+    ap.add_argument("--pitch", default="+0Hz", help="edge 높낮이")
+    ap.add_argument("--tempo", type=float, default=1.0, help="만든 뒤 빠르기만 올리기 (예 1.1)")
+    ap.add_argument("--no-polish", action="store_true", help="방송용 다듬기 끄기")
+    ap.add_argument("--audition", action="store_true", help="목소리 비교 샘플만 만들기")
     a = ap.parse_args(argv)
     folder = Path(a.folder).resolve()
     script = re.sub(r"\s+", " ", (folder / "narration.txt").read_text()).strip()
@@ -126,13 +170,17 @@ def main(argv=None):
         print("주의: 대본에 영어·숫자가 남아 있어요 — speakable.py 로 읽는 소리로 바꾸면 엔진마다 읽는 법이 흔들리지 않아요",
               file=sys.stderr)
     (folder / "audio").mkdir(exist_ok=True)
+    if a.audition:
+        return audition(folder, script)
     mp3 = folder / "audio" / "narration.mp3"
     if a.engine == "edge":
-        chars = edge(script, mp3, a.voice or "ko-KR-SunHiNeural", a.rate)
+        chars = edge(script, mp3, a.voice or "ko-KR-SunHiNeural", a.rate, a.pitch)
     else:
         if not a.voice:
             raise SystemExit("--voice <ElevenLabs voice_id> 가 필요해요")
         chars = elevenlabs(script, mp3, a.voice, a.model, a.speed)
+    k = post(mp3, not a.no_polish, a.tempo)
+    chars = [(ch, st * k, en * k) for ch, st, en in chars]
     words = char_times_to_words(script, chars)
     (folder / "audio" / "narration.words.json").write_text(
         json.dumps({"words": words, "engine": a.engine, "voice": a.voice}, ensure_ascii=False, indent=1))

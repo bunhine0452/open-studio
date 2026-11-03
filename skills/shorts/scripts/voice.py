@@ -1,14 +1,16 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["edge-tts>=7", "requests"]
+# dependencies = ["edge-tts>=7", "requests", "onnxruntime", "numpy", "soundfile", "huggingface_hub"]
 # ///
-"""내레이션 음성 + 낱말 시각. 기본은 무료(키 없음) edge-tts.
+"""내레이션 음성 + 낱말 시각. 기본은 무료(키 없음) Supertonic 3, 내 컴퓨터 CPU 에서.
 
-uv run voice.py <편 폴더> [--engine edge|elevenlabs] [--voice ko-KR-SunHiNeural] [--rate +12%]
+uv run voice.py <편 폴더> [--engine supertonic|edge|elevenlabs] [--voice F5] [--speed 1.1]
   읽는 것: <편 폴더>/narration.txt (speakable.py 를 거친, 소리 나는 대로 쓴 대본)
   만드는 것: audio/narration.mp3, audio/narration.words.json  ({"words": [{"w": " 낱말,", "s": 0.1, "e": 0.4}]})
 
 엔진
+  supertonic  기본. 무료 오픈 웨이트(Supertone Supertonic 3), 내 컴퓨터 CPU 에서 돈다(인터넷은 첫 모델 다운로드만).
+              목소리 F1~F5(여) · M1~M5(남), 기본 F5. --speed 1.1 안팎. 2026-11 비교에서 edge 보다 음질 점수가 높았다
   edge        무료, 키 없음, 인터넷 필요. 한국어 목소리: ko-KR-SunHiNeural(여) · ko-KR-InJoonNeural(남)
               · ko-KR-HyunsuMultilingualNeural(남). 말 빠르기 --rate (+0% ~ +25%, 쇼츠는 +10% 안팎)
   elevenlabs  유료 선택지. 환경 변수 ELEVENLABS_API_KEY, --voice <voice_id>, --model eleven_v3
@@ -33,6 +35,8 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 _PUNCT = re.compile(r"[\s.,!?·…'\"“”‘’()\[\]{}:;~\-—]+")
 
@@ -104,17 +108,43 @@ def post(mp3: Path, polish=True, tempo=1.0):
     return 1.0 / tempo
 
 
+def supertonic(script: str, out_mp3: Path, voice="F5", speed=1.1, pause=0.22):
+    """문장마다 만들어 잇고, 글자 시각은 문장 안 쉼표·글자 수로 어림한다."""
+    import numpy as np
+    import soundfile as sf
+    from supertonic_tts import Supertonic, char_times, sentences
+    m = Supertonic(voice, steps=10)
+    parts, chars, t = [], [], 0.0
+    for k, sent in enumerate(sentences(script)):
+        wav = m.say(sent, speed=speed, seed=k)
+        chars += char_times(sent, wav, m.sr, t)
+        gap = np.zeros(int(m.sr * pause), np.float32)
+        parts += [wav, gap]
+        t += (len(wav) + len(gap)) / m.sr
+    wav_path = Path(out_mp3).with_suffix(".wav")
+    sf.write(wav_path, np.concatenate(parts), m.sr)
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(wav_path), "-c:a", "libmp3lame", "-q:a", "2", str(out_mp3)], check=True)
+    wav_path.unlink()
+    return chars
+
+
 def audition(folder: Path, script: str):
     first = re.split(r"(?<=[.?!])\s", script, maxsplit=1)[0]
     out = folder / "audio" / "audition"
     out.mkdir(parents=True, exist_ok=True)
+    from supertonic_tts import VOICES
+    for v in VOICES:  # 무료 오픈 웨이트 목소리 10개
+        f = out / f"supertonic-{v}.mp3"
+        supertonic(first, f, v)
+        post(f, True)
+        print(f)
     for v in KO_VOICES:
         for rate in ("+0%", "+10%", "+20%"):
-            f = out / f"{v.split('-')[2].replace('Neural', '')}{rate.replace('%', '')}.mp3"
+            f = out / f"edge-{v.split('-')[2].replace('Neural', '')}{rate.replace('%', '')}.mp3"
             edge(first, f, v, rate)
             post(f, True)
             print(f)
-    print("들어 보고 마음에 드는 목소리·빠르기를 --voice / --rate 로 넘기세요")
+    print("들어 보고 고르세요: Supertonic 은 --voice F3 (--speed 1.1), edge 는 --engine edge --voice … --rate …")
 
 
 async def _edge(script, voice, rate, out_mp3, pitch="+0Hz"):
@@ -138,7 +168,7 @@ def elevenlabs(script, out_mp3, voice, model="eleven_v3", speed=None):
     import requests
     key = os.environ.get("ELEVENLABS_API_KEY")
     if not key:
-        raise SystemExit("ELEVENLABS_API_KEY 환경 변수가 없어요 (무료로 하려면 --engine edge)")
+        raise SystemExit("ELEVENLABS_API_KEY 환경 변수가 없어요 (무료로 하려면 --engine supertonic)")
     body = {"text": script, "model_id": model, "language_code": "ko",
             "voice_settings": {"stability": 0.5, "similarity_boost": 0.8} | ({"speed": speed} if speed else {})}
     r = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voice}/with-timestamps", headers={"xi-api-key": key},
@@ -154,11 +184,11 @@ def elevenlabs(script, out_mp3, voice, model="eleven_v3", speed=None):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("folder")
-    ap.add_argument("--engine", default="edge", choices=["edge", "elevenlabs"])
+    ap.add_argument("--engine", default="supertonic", choices=["supertonic", "edge", "elevenlabs"])
     ap.add_argument("--voice", default=None)
     ap.add_argument("--rate", default="+12%", help="edge 말 빠르기")
     ap.add_argument("--model", default="eleven_v3")
-    ap.add_argument("--speed", type=float, default=None, help="elevenlabs 말 빠르기 0.7~1.2")
+    ap.add_argument("--speed", type=float, default=None, help="supertonic(기본 1.1)·elevenlabs(0.7~1.2) 말 빠르기")
     ap.add_argument("--pitch", default="+0Hz", help="edge 높낮이")
     ap.add_argument("--tempo", type=float, default=1.0, help="만든 뒤 빠르기만 올리기 (예 1.1)")
     ap.add_argument("--no-polish", action="store_true", help="방송용 다듬기 끄기")
@@ -173,7 +203,9 @@ def main(argv=None):
     if a.audition:
         return audition(folder, script)
     mp3 = folder / "audio" / "narration.mp3"
-    if a.engine == "edge":
+    if a.engine == "supertonic":
+        chars = supertonic(script, mp3, a.voice or "F5", a.speed or 1.1)
+    elif a.engine == "edge":
         chars = edge(script, mp3, a.voice or "ko-KR-SunHiNeural", a.rate, a.pitch)
     else:
         if not a.voice:

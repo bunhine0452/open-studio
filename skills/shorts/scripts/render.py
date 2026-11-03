@@ -135,6 +135,29 @@ def chunks_from(words, seg_starts, highlights, cmap=None, max_chars=18, min_char
             for x in merged]
 
 
+def write_timeline(folder, spec, sc_spec, bounds, total, words, events, track, peaks=600):
+    """편집기처럼 보여 줄 수 있게 타임라인을 내보낸다: 장면 블록·낱말·효과음 위치·목소리 파형(봉우리 600개)."""
+    import numpy as np
+    import sfx
+    bank = sfx.BANKS.get(themes.SFX_BANK, {})
+    over = spec.get("sfx") or {}
+    n = len(track) // peaks or 1
+    env = np.abs(track[: n * peaks]).reshape(peaks, n).max(axis=1)
+    env = (env / (env.max() or 1)).round(3).tolist()
+    bgm = spec.get("bgm")
+    data = {
+        "total": round(total, 3), "theme": themes.NAME,
+        "scenes": [{"t0": round(bounds[k], 3), "t1": round(bounds[k + 1], 3), "type": sc["type"],
+                    "label": re.sub(r"[\[\]\n]", " ", sc.get("headline") or sc.get("todo") or "").strip()}
+                   for k, sc in enumerate(sc_spec)],
+        "words": [{"w": w["w"].strip(), "s": round(w["s"], 3), "e": round(w["e"], 3)} for w in words],
+        "sfx": [{"t": round(t, 3), "name": over.get(e, bank.get(e, e))} for t, e, _ in sorted(events)],
+        "bgm": (bgm if isinstance(bgm, dict) else {"style": bgm}) if bgm else None,
+        "wave": env,
+    }
+    (folder / "timeline.json").write_text(json.dumps(data, ensure_ascii=False))
+
+
 def still_words(folder, narration):
     import subprocess
     toks = (folder / "narration.txt").read_text().split()
@@ -190,6 +213,8 @@ def build(folder: Path, argv=()):
         if i:
             events.append((bounds[i], "transition", 0))
         scenes.append(Scene(bounds[i], bounds[i + 1], layers))
+
+    write_timeline(folder, spec, sc_spec, bounds, total, W_, events, track)
 
     motion = "--simple" not in argv  # 기본은 모션 엔진(헤드리스 Chrome), --simple 은 PIL 엔진
     if motion:

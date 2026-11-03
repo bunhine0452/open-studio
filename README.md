@@ -77,7 +77,7 @@ cp -r open-studio/skills/* ~/.claude/skills/
   → 웹에서 자료 찾기 · 공식 출처로 사실 확인
   → 대본 (해요체, 40~50초)
   → 읽는 소리 변환   3D → 쓰리디, SSH → 에스에스에이치, 10월 → 시월, 3개 → 세 개
-  → 무료 음성 (edge-tts) + 낱말 단위 시각
+  → 무료 음성 (Supertonic 3, 내 컴퓨터에서) + 낱말 단위 시각
   → 주제에 맞는 테마 (보안이면 네온 + 글리치 전환 + 신스 효과음)
   → 1080×1920 mp4 + 자막 srt + 제목·설명란·고정 댓글
 ```
@@ -98,7 +98,7 @@ uv run $S/doctor.py                                           # 설치 점검 (�
 uv run $S/speakable.py examples/security-neon --write-spec   # draft.txt → narration.txt + caption_map
 uv run $S/render.py examples/security-neon --still --preview  # 음성 없이 화면 먼저 (storyboard.jpg)
 uv run $S/voice.py examples/security-neon --audition          # 목소리 3개 × 빠르기 3단계 샘플
-uv run $S/voice.py examples/security-neon                     # 무료 음성 (edge-tts, 키 없음, 방송용 다듬기)
+uv run $S/voice.py examples/security-neon                     # 무료 음성 (Supertonic 3, CPU, 키 없음, 방송용 다듬기)
 uv run $S/render.py examples/security-neon                    # → examples/security-neon/security-neon.mp4
 bash $S/check_video.sh examples/security-neon/security-neon.mp4
 uv run $S/render.py examples/git-paper --still --preview --theme arcade   # 같은 편을 다른 테마로
@@ -110,18 +110,32 @@ uv run $S/render.py examples/git-paper --still --preview --theme arcade   # 같�
 
 | 엔진 | 비용 | 쓰는 법 |
 |---|---|---|
-| edge-tts (기본) | 무료, 키 없음, 인터넷 필요 | `--voice ko-KR-SunHiNeural` (여) · `ko-KR-InJoonNeural` (남) · `ko-KR-HyunsuMultilingualNeural` (남) · `--rate +12%` |
+| Supertonic 3 (기본) | 무료, 키 없음, 내 컴퓨터 CPU 에서 실행(첫 실행 때 모델 약 300MB 내려받기) | `--voice F1`~`F5` (여) · `M1`~`M5` (남), 기본 F5 · `--speed 1.1` |
+| edge-tts | 무료, 키 없음, 인터넷 필요 | `--engine edge --voice ko-KR-SunHiNeural` (여) · `ko-KR-InJoonNeural` · `ko-KR-HyunsuMultilingualNeural` (남) · `--rate +12%` |
 | ElevenLabs (선택) | 유료 | `ELEVENLABS_API_KEY` 환경 변수 + `--engine elevenlabs --voice <id>` |
 
-두 엔진 모두 글자·낱말 시각을 함께 받아 자막을 맞추므로 받아쓰기 모델이 필요 없습니다.
+edge·ElevenLabs 는 글자 시각을 함께 받고, Supertonic 은 문장마다 따로 만들어 쉼과 글자 수로 시각을 어림합니다. 받아쓰기 모델과 비교하면 낱말 시작 시각 차이가 중앙값 0.07초라 자막 하이라이트에 충분합니다.
+
+**왜 Supertonic 이 기본인가요?** 2026년 11월, 같은 대본으로 무료 목소리 13개를 만들어 음질 예측 점수(DNSMOS, 5점 만점)와 받아쓰기 오류율(Whisper)을 쟀습니다.
+
+| 목소리 | 음질 점수 | 받아쓰기 오류 |
+|---|---|---|
+| Supertonic M3 (남) | 3.54 | 0% |
+| Supertonic F5 (여) | 3.49 | 0% |
+| edge InJoon (남) | 3.50 | 0% |
+| edge Hyunsu (남) | 3.40 | 0% |
+| edge SunHi (여) | 3.18 | 0% |
+| 참고: ElevenLabs 유료 목소리 | 3.24 | - |
+
+여자 목소리는 Supertonic 다섯 개가 모두 edge SunHi 보다 높았습니다(3.43~3.49). 점수는 참고용이니 `--audition` 으로 직접 들어 보고 고르세요.
 
 무료 목소리를 더 좋게 듣는 방법(모두 `voice.py` 에 들어 있습니다):
-- `--audition` 으로 목소리·빠르기 9가지를 들어 보고 고르기. 같은 엔진이라도 목소리마다 차이가 큽니다.
+- `--audition` 으로 Supertonic 10개와 edge 목소리·빠르기 9가지를 들어 보고 고르기. 같은 엔진이라도 목소리마다 차이가 큽니다.
 - 방송용 다듬기(기본 켜짐): 웅웅거림을 자르고, 또렷함(3kHz)을 올리고, 치찰음을 줄이고, 가볍게 압축합니다. 시간은 그대로라 자막이 어긋나지 않습니다.
 - `--tempo 1.08`: 엔진 빠르기 대신 만든 뒤 빠르기만 올리기. 말투가 덜 뭉개질 때가 많습니다.
 - 대본 쪽: 짧은 문장, 영어·숫자는 읽는 소리로(`speakable.py`). 엔진이 머뭇거리는 곳은 대부분 긴 문장과 영어입니다.
 
-edge-tts 는 Microsoft Edge 의 소리 내어 읽기 서비스를 쓰는 오픈소스 라이브러리입니다. 공식 API 가 아니라서 바뀌거나 막힐 수 있고, 그때는 다른 엔진을 `voice.py` 에 더하면 됩니다. 만든 음성을 영상에 쓸 때는 설명란에 "AI 음성"을 밝혀 주세요.
+Supertonic 3 은 Supertone 이 공개한 모델입니다(코드 MIT, 가중치 OpenRAIL-M, 상업 이용 가능하나 사용 제한 조항이 있으니 [라이선스](https://huggingface.co/supertone-oss-archive/supertonic-3)를 한 번 읽어 주세요). 원 저장소는 보관 처리됐지만 받을 수 있고, `supertonic_tts.py` 가 리비전을 고정해 받습니다. edge-tts 는 Microsoft Edge 의 소리 내어 읽기 서비스를 쓰는 오픈소스 라이브러리라 공식 API 가 아니고 바뀌거나 막힐 수 있습니다. 만든 음성을 영상에 쓸 때는 설명란에 "AI 음성"을 밝혀 주세요.
 
 ---
 

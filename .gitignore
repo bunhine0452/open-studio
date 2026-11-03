@@ -10,3 +10,4 @@ examples/*/captions.srt
 /shorts/
 examples/*/out/
 !docs/media/*.mp4
+timeline.json

@@ -1,4 +1,4 @@
-# claude-shorts
+# open-shorts
 
 **쇼츠 자동화, 돈 주고 배우지 마세요.** 주제 한 줄을 말하면 Claude Code 가 자료를 찾고, 대본을 쓰고, 목소리·자막·효과음을 넣어 세로 쇼츠 mp4 를 만듭니다. 전부 오픈소스(MIT)이고, 기본 목소리도 무료라 결제할 게 없습니다.
 
@@ -31,14 +31,14 @@
 
 **플러그인으로** (Claude Code 안에서)
 ```
-/plugin marketplace add bunhine0452/claude-shorts
-/plugin install claude-shorts@claude-shorts
+/plugin marketplace add bunhine0452/open-shorts
+/plugin install open-shorts@open-shorts
 ```
 
 **스킬 폴더만 복사해도 됩니다**
 ```bash
-git clone https://github.com/bunhine0452/claude-shorts
-cp -r claude-shorts/skills/shorts ~/.claude/skills/shorts
+git clone https://github.com/bunhine0452/open-shorts
+cp -r open-shorts/skills/shorts ~/.claude/skills/shorts
 ```
 
 그다음 Claude Code 에서:

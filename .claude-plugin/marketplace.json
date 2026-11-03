@@ -1,11 +1,14 @@
 {
-  "name": "claude-shorts",
-  "owner": {"name": "bunhine0452"},
+  "name": "open-shorts",
+  "owner": {
+    "name": "bunhine0452"
+  },
   "plugins": [
     {
-      "name": "claude-shorts",
+      "name": "open-shorts",
       "source": "./",
       "description": "주제 한 줄로 세로 쇼츠를 만드는 Claude Code 스킬 (무료 음성 · 테마 5종 + 사용자 테마 · 코드로 합성한 효과음)"
     }
-  ]
+  ],
+  "description": "주제 한 줄로 세로 쇼츠를 만드는 오픈소스 Claude Code 스킬"
 }

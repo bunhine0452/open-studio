@@ -81,11 +81,13 @@ class Page:
         at = lambda ph, d=0.05, lead=0.1: g(c.at(ph, d, lead))  # noqa: E731
         b = []
         if kind == "cover":
-            b.append(self.picture(c, sc.get("photo"), 430, g(-0.1)))
+            # 첫 장면 첫 프레임이 썸네일·이탈을 좌우한다 → 사진·제목은 이미 반쯤 들어온 상태에서 시작
+            lead = 0.5 if c.i == 0 else 0.0
+            b.append(self.picture(c, sc.get("photo"), 430, g(-0.1 - lead)))
             if sc.get("tag"):
-                b.append(f'<span class="tag" style="--d:{g(0.4):.3f}s">{html.escape(sc["tag"])}</span>')
+                b.append(f'<span class="tag" style="--d:{g(0.4 - lead):.3f}s">{html.escape(sc["tag"])}</span>')
             b.append("</div>")
-            b.append(f'<div style="height:40px"></div>{head(sc["headline"], g(0.15), 76)}')
+            b.append(f'<div style="height:40px"></div>{head(sc["headline"], g(0.15 - lead), 76)}')
             big = sc.get("big")
             if big:
                 v = int(big["value"])
